@@ -1,0 +1,3756 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Telegram Channel Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #E8E4DC 0%, #D4CFC4 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #2D2D2D;
+            color: white;
+            padding: 22px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .navbar .logout-btn {
+            padding: 10px 22px;
+            background: rgba(255, 217, 61, 0.2);
+            border: 2px solid #FFD93D;
+            color: #FFD93D;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .navbar .logout-btn:hover {
+            background: #FFD93D;
+            color: #2D2D2D;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .menu-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .menu-tab {
+            padding: 14px 28px;
+            background: #FFFFFF;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: #6B6B6B;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .menu-tab:hover {
+            border-color: #FFD93D;
+            color: #2D2D2D;
+        }
+
+        .menu-tab.active {
+            background: #FFD93D;
+            color: #2D2D2D;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 217, 61, 0.3);
+        }
+
+        .menu-content {
+            display: none;
+        }
+
+        .menu-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card h2 {
+            font-size: 22px;
+            margin-bottom: 22px;
+            color: #2D2D2D;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #2D2D2D;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #E8E4DC;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #FAF9F7;
+            color: #2D2D2D;
+        }
+
+        .form-group input::placeholder,
+        .form-group select::placeholder,
+        .form-group textarea::placeholder {
+            color: #A0A0A0;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #FFD93D;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(255, 217, 61, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 13px 26px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #FFD93D;
+            color: #2D2D2D;
+        }
+
+        .btn:hover {
+            background: #FFC93D;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 217, 61, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6B6B6B;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5A5A5A;
+            box-shadow: 0 5px 20px rgba(107, 107, 107, 0.3);
+        }
+
+        .btn-danger {
+            background: #E85D75;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #D84A66;
+            box-shadow: 0 5px 20px rgba(232, 93, 117, 0.3);
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45A049;
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-stop {
+            background: #E85D75;
+            display: none;
+        }
+
+        .btn-stop.show {
+            display: inline-block;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .accounts-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .account-item {
+            padding: 22px;
+            background: #FAF9F7;
+            border-radius: 15px;
+            border: 2px solid #E8E4DC;
+            transition: all 0.3s;
+        }
+
+        .account-item:hover {
+            border-color: #FFD93D;
+            box-shadow: 0 4px 20px rgba(255, 217, 61, 0.15);
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #2D2D2D;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .channels-list {
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+
+        .channel-item {
+            padding: 12px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #2D2D2D;
+            border: 1px solid #E8E4DC;
+        }
+
+        .message {
+            padding: 16px 18px;
+            border-radius: 15px;
+            margin-bottom: 22px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #C8E6C9;
+        }
+
+        .message.error {
+            background: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #FFCDD2;
+        }
+
+        .message.info {
+            background: #FFF9E6;
+            color: #C6A700;
+            border: 1px solid #FFE999;
+        }
+
+        .message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 35px;
+            max-width: 520px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 22px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #E8E4DC;
+            border-top: 3px solid #FFD93D;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .log-container {
+            background: #2D2D2D;
+            color: #FFD93D;
+            padding: 22px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 600px;
+            overflow-y: auto;
+            margin-top: 22px;
+            line-height: 1.8;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 4px 0;
+            word-wrap: break-word;
+        }
+
+        .log-entry.success {
+            color: #4CAF50;
+        }
+
+        .log-entry.error {
+            color: #E85D75;
+        }
+
+        .log-entry.info {
+            color: #FFD93D;
+        }
+
+        .log-entry.warning {
+            color: #FF9800;
+        }
+
+        .log-entry.system {
+            color: #A0A0A0;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.active {
+            background: #4CAF50;
+            box-shadow: 0 0 8px #4CAF50;
+        }
+
+        .status-indicator.inactive {
+            background: #E85D75;
+            box-shadow: 0 0 8px #E85D75;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(0.95);
+            }
+        }
+
+        .log-tabs {
+            display: flex;
+            gap: 6px;
+            margin-top: 22px;
+            flex-wrap: wrap;
+            display: none;
+        }
+
+        .log-tabs.show {
+            display: flex;
+        }
+
+        .log-tab {
+            padding: 11px 20px;
+            background: #FAF9F7;
+            color: #2D2D2D;
+            border: 2px solid #E8E4DC;
+            border-radius: 12px 12px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .log-tab:hover {
+            background: #FFFFFF;
+            border-color: #FFD93D;
+        }
+
+        .log-tab.active {
+            background: #2D2D2D;
+            color: #FFD93D;
+            border-color: #2D2D2D;
+            border-bottom: none;
+        }
+
+        .log-tab .badge {
+            display: inline-block;
+            background: rgba(255, 217, 61, 0.3);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .log-tab.active .badge {
+            background: rgba(255, 217, 61, 0.3);
+            color: #FFD93D;
+        }
+
+        .log-tab .stop-account-btn {
+            background: #E85D75;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .log-tab .stop-account-btn:hover {
+            background: #D84A66;
+            box-shadow: 0 4px 15px rgba(232, 93, 117, 0.4);
+            transform: scale(1.05);
+        }
+
+        .log-tab .stop-account-btn.stopped {
+            background: #6B6B6B;
+            cursor: not-allowed;
+        }
+
+        .account-log-container {
+            display: none;
+        }
+
+        .account-log-container.active {
+            display: block;
+        }
+
+        .requests-info {
+            background: #FAF9F7;
+            padding: 22px;
+            border-radius: 15px;
+            margin-bottom: 22px;
+            border: 1px solid #E8E4DC;
+        }
+
+        .channel-requests {
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            color: #2D2D2D;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-badge.active {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #C8E6C9;
+        }
+
+        .status-badge.inactive {
+            background: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #FFCDD2;
+        }
+
+        .status-badge.checking {
+            background: #FFF9E6;
+            color: #C6A700;
+            border: 1px solid #FFE999;
+        }
+
+        select option {
+            background: #FFFFFF;
+            color: #2D2D2D;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #E8E4DC;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #FFD93D;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFC93D;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="navbar">
+        <h1>Telegram Channel Manager</h1>
+        <div class="user-info">
+            <span class="username">Admin</span>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="menu-tabs">
+            <button class="menu-tab active" onclick="switchMenu('accounts')">Accounts</button>
+            <button class="menu-tab" onclick="switchMenu('messages')">Send Messages</button>
+            <button class="menu-tab" onclick="switchMenu('proxy')">Proxy</button>
+        </div>
+
+
+        <div id="proxy-menu" class="menu-content">
+            <div class="card">
+                <h2>Add Proxy</h2>
+                <div id="proxy-message" class="message"></div>
+
+                <div
+                    style="margin-bottom: 20px; padding: 12px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px; font-size: 13px;">
+                    <b>ℹ️ Auto Location Detection:</b> The system will automatically detect the real location that
+                    Telegram sees through this proxy. This may take a few seconds.
+                </div>
+
+                <form id="add-proxy-form" onsubmit="handleAddProxy(event)">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Host / IP Address</label>
+                            <input type="text" id="proxy-host" required placeholder="127.0.0.1 or proxy.example.com">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Port</label>
+                            <input type="number" id="proxy-port" required placeholder="1080" min="1" max="65535">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Protocol</label>
+                        <select id="proxy-protocol">
+                            <option value="socks5">SOCKS5 (Recommended)</option>
+                            <option value="socks4">SOCKS4</option>
+                            <option value="http">HTTP</option>
+                            <option value="https">HTTPS</option>
+                        </select>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Username (Optional)</label>
+                            <input type="text" id="proxy-username" placeholder="Leave empty if no auth">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Password (Optional)</label>
+                            <input type="password" id="proxy-password" placeholder="Leave empty if no auth">
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn">Add Proxy</button>
+                    </div>
+                </form>
+
+                <div id="proxy-loading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h2>Proxy List</h2>
+                <div id="proxy-list"></div>
+            </div>
+        </div>
+
+        <div id="accounts-menu" class="menu-content active">
+            <div class="card">
+                <h2>Add Telegram Account</h2>
+                <div id="account-message" class="message"></div>
+
+                <form id="add-account-form" onsubmit="handleAddAccount(event)">
+                    <div class="form-group">
+                        <label>Phone Number (+998901234567)</label>
+                        <input type="tel" id="phone" required placeholder="+998901234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Account Name</label>
+                        <input type="text" id="account-name" required placeholder="My Account">
+                    </div>
+                    <div class="form-group">
+                        <label>API ID</label>
+                        <input type="text" id="api-id" required placeholder="12345678">
+                    </div>
+                    <div class="form-group">
+                        <label>API Hash</label>
+                        <input type="text" id="api-hash" required placeholder="abcdef1234567890">
+                    </div>
+                    <div class="form-group">
+                        <label>Proxy (Optional)</label>
+                        <select id="account-proxy-select">
+                            <option value="">No proxy</option>
+                        </select>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="sendCode()">Send Code</button>
+                    </div>
+
+                    <div id="verification-section" style="display: none; margin-top: 20px;">
+                        <div class="form-group">
+                            <label>Verification Code</label>
+                            <input type="text" id="verification-code" placeholder="12345">
+                        </div>
+                        <div class="form-group" id="password-section" style="display: none;">
+                            <label>2FA Password</label>
+                            <input type="password" id="2fa-password" placeholder="Your 2FA password">
+                        </div>
+                        <button type="submit" class="btn">Add Account</button>
+                    </div>
+                </form>
+
+                <div id="account-loading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>My Accounts</h2>
+                <div id="accounts-list" class="accounts-list"></div>
+            </div>
+        </div>
+
+        <div id="messages-menu" class="menu-content">
+            <div class="card">
+                <h2>Send Messages</h2>
+                <div id="message-message" class="message"></div>
+
+                <div class="form-group">
+                    <label>Select Channel</label>
+                    <div style="display: flex; gap: 10px; align-items: end;">
+                        <select id="channel-select" onchange="loadAccountsByChannel()" style="flex: 1;">
+                            <option value="">Select a channel</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="updateChannelNames()" style="white-space: nowrap;">
+                            Update Channel
+                        </button>
+                    </div>
+                    <small style="color: #666; margin-top: 5px; display: block;">If channels are not showing, click
+                        "Update Channel" to refresh from Telegram</small>
+                </div>
+
+                <div class="form-group" id="accounts-section" style="display: none;">
+                    <label>Accounts for Selected Channel</label>
+                    <div id="channel-accounts-list"
+                        style="background: #f8f9fa; padding: 15px; border-radius: 8px; max-height: 400px; overflow-y: auto;">
+                    </div>
+                </div>
+
+                <div class="btn-group" id="refresh-section" style="display: none;">
+                    <button class="btn btn-secondary" onclick="refreshChannelUsers()">Refresh Users</button>
+                </div>
+
+                <div id="fetch-progress-container"
+                    style="display: none; margin: 20px 0; background: #f8f9fa; border-radius: 10px; padding: 20px; border: 2px solid #667eea;">
+                    <div style="margin-bottom: 15px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4 style="margin: 0; color: #667eea;">Fetching Users...</h4>
+                            <span id="fetch-progress-status" style="font-weight: 600; color: #667eea;">0%</span>
+                        </div>
+                        <div style="background: #e0e0e0; border-radius: 10px; height: 25px; overflow: hidden;">
+                            <div id="fetch-progress-bar"
+                                style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="fetch-progress-details"
+                        style="max-height: 200px; overflow-y: auto; font-size: 13px; color: #666; background: white; border-radius: 5px; padding: 10px;">
+                    </div>
+                </div>
+
+                <div id="requests-info" class="requests-info" style="display: none;"></div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="skip-sent" checked style="width: auto;">
+                    <label for="skip-sent" style="margin: 0;">Skip previously messaged users</label>
+                </div>
+
+                <div class="form-group">
+                    <label>Message Text</label>
+                    <div
+                        style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 12px; margin-bottom: 10px; border-radius: 5px; font-size: 13px;">
+                        <div style="font-weight: 600; margin-bottom: 5px;">Usage:</div>
+                        <div style="margin-bottom: 3px;">• <strong>{name}</strong> - Will be replaced with user's name
+                        </div>
+                        <div>• <strong>{text -> link}</strong> - Create clickable link</div>
+                    </div>
+                    <textarea id="welcome-message" placeholder="Hello {name}! Welcome to our channel"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Sending Pattern (Staged Sending)</label>
+                    <div
+                        style="background: #fff3cd; border-left: 4px solid #ff9800; padding: 12px; margin-bottom: 10px; border-radius: 5px; font-size: 13px;">
+                        <div style="font-weight: 600; margin-bottom: 5px;">Pattern Examples:</div>
+                        <div style="margin-bottom: 3px;">• <strong>3:3:4</strong> - 3 accounts in stage 1, then 3
+                            accounts in stage 2, then 4 accounts in stage 3</div>
+                        <div style="margin-bottom: 3px;">• <strong>2:2:2:3:1</strong> - 5 stages with different account
+                            counts</div>
+                        <div style="margin-bottom: 3px;">• <strong>5</strong> - All 5 accounts at once (default
+                            behavior)</div>
+                        <div style="font-size: 12px; color: #d84315; margin-top: 8px;">⚠️ Pattern sum must equal
+                            selected accounts count!</div>
+                    </div>
+                    <input type="text" id="sending-pattern" placeholder="Example: 3:3:4 or leave empty for all at once"
+                        style="padding: 12px; border: 2px solid #ddd; border-radius: 8px; width: 100%; font-size: 14px;">
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success" id="send-btn" onclick="sendWelcomeMessages()">Send Messages</button>
+                    <button class="btn btn-stop" id="stop-btn" onclick="stopMessages()">Stop All Messages</button>
+                    <button class="btn btn-secondary" id="clear-logs-btn" onclick="clearSavedLogs()"
+                        style="display: none;">Clear Logs</button>
+                </div>
+
+                <div id="message-loading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+
+                <div id="log-tabs" class="log-tabs"></div>
+                <div id="logs-container"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="add-channel-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Channel</h3>
+                <button class="close-btn" onclick="closeModal('add-channel-modal')">&times;</button>
+            </div>
+            <div id="channel-message" class="message"></div>
+            <form id="add-channel-form" onsubmit="handleAddChannel(event)">
+                <input type="hidden" id="selected-account-id">
+                <div class="form-group">
+                    <label>Channel ID (-100... or username)</label>
+                    <input type="text" id="channel-id" required placeholder="-1001234567890">
+                </div>
+                <button type="submit" class="btn">Add Channel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentAccounts = [];
+        let currentRequests = null;
+        let isSending = false;
+        let channelAccounts = [];
+        let selectedChannel = '';
+
+        // Global EventSource management variables
+        let activeEventSource = null;
+        let activeReconnectTimeout = null;
+        let activeHeartbeatInterval = null;
+        let activeAccountLogData = null;
+        let isCompleted = false;
+
+        async function loadChannelNames() {
+            try {
+                const response = await fetch('/get_channel_names');
+                const data = await response.json();
+
+                console.log('Channel names response:', data);
+
+                if (data.success) {
+                    const select = document.getElementById('channel-select');
+                    select.innerHTML = '<option value="">Select a channel</option>';
+
+                    if (data.channel_names && data.channel_names.length > 0) {
+                        data.channel_names.forEach(name => {
+                            const option = document.createElement('option');
+                            option.value = name;
+                            option.textContent = name;
+                            select.appendChild(option);
+                        });
+                        console.log(`Loaded ${data.channel_names.length} channels`);
+                    } else {
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'No channels available - Add channels to accounts first';
+                        option.disabled = true;
+                        select.appendChild(option);
+                        console.warn('No channels found in database');
+                    }
+                } else {
+                    console.error('Failed to load channel names:', data);
+                }
+            } catch (error) {
+                console.error('Error loading channel names:', error);
+                showMessage('message-message', 'Failed to load channels', 'error');
+            }
+        }
+
+        async function updateChannelNames() {
+            if (!confirm('This will update all channel names from Telegram. Continue?')) {
+                return;
+            }
+
+            showLoading('message-loading');
+            showMessage('message-message', 'Updating channel names...', 'info');
+
+            try {
+                const response = await fetch('/update_channel_names', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                hideLoading('message-loading');
+
+                if (data.success) {
+                    showMessage('message-message', data.message, 'success');
+                    await loadChannelNames();
+                } else {
+                    showMessage('message-message', data.message || 'Failed to Update Channel', 'error');
+                }
+            } catch (error) {
+                hideLoading('message-loading');
+                showMessage('message-message', 'An error occurred', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadAccountsByChannel() {
+            const channelName = document.getElementById('channel-select').value;
+            if (!channelName) {
+                document.getElementById('accounts-section').style.display = 'none';
+                document.getElementById('refresh-section').style.display = 'none';
+                return;
+            }
+
+            selectedChannel = channelName;
+
+            try {
+                await loadProxies();
+
+                const response = await fetch('/get_accounts_by_channel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ channel_name: channelName })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    channelAccounts = data.accounts;
+                    displayChannelAccounts(data.accounts);
+                    document.getElementById('accounts-section').style.display = 'block';
+                    document.getElementById('refresh-section').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+            }
+        }
+
+        function displayChannelAccounts(accounts) {
+            const container = document.getElementById('channel-accounts-list');
+            if (accounts.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center;">No accounts for this channel</p>';
+                return;
+            }
+
+            container.innerHTML = accounts.map(acc => {
+                const proxyOptions = ['<option value="">No proxy change (use current)</option>'];
+                if (proxies && proxies.length > 0) {
+                    proxies.filter(p => p.is_active).forEach(proxy => {
+                        const selected = acc.proxy && acc.proxy.id === proxy.id ? 'selected' : '';
+                        const statusText = proxy.status === 'online' ? '✓' : proxy.status === 'offline' ? '✗' : '?';
+                        proxyOptions.push(`<option value="${proxy.id}" ${selected}>${statusText} ${proxy.host}:${proxy.port} (${proxy.protocol.toUpperCase()})</option>`);
+                    });
+                }
+
+                const currentProxy = acc.proxy ? `${acc.proxy.host}:${acc.proxy.port} <span style="color: ${acc.proxy.status === 'online' ? '#4caf50' : '#f44336'}">(${acc.proxy.status})</span>` : 'No proxy';
+
+                return `
+                <div style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; margin: 0; flex: 1; cursor: pointer;">
+                            <input type="checkbox" class="account-checkbox" data-account-id="${acc.id}" checked style="width: auto;">
+                            <span style="font-weight: 600; color: #333;">${acc.account_name}</span>
+                        </label>
+                    </div>
+                    <div style="margin-left: 28px;">
+                        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">${acc.phone}</div>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 8px;">Current: ${currentProxy}</div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <label style="font-size: 13px; color: #666; white-space: nowrap;">Users to message:</label>
+                            <input type="number" class="user-limit-input" data-account-id="${acc.id}" value="100" min="1" style="width: 100px; padding: 5px 10px; border: 2px solid #e0e0e0; border-radius: 5px;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="font-size: 13px; color: #666; white-space: nowrap;">Proxy:</label>
+                            <select class="proxy-select" data-account-id="${acc.id}" style="flex: 1; padding: 5px 10px; border: 2px solid #e0e0e0; border-radius: 5px; font-size: 13px;">
+                                ${proxyOptions.join('')}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        async function refreshChannelUsers() {
+            const channelName = selectedChannel;
+            if (!channelName) {
+                showMessage('message-message', 'Please select a channel first', 'error');
+                return;
+            }
+
+            const selectedAccountId = channelAccounts.find(acc => {
+                const checkbox = document.querySelector(`.account-checkbox[data-account-id="${acc.id}"]`);
+                return checkbox && checkbox.checked;
+            })?.id;
+
+            if (!selectedAccountId) {
+                showMessage('message-message', 'Please select at least one account', 'error');
+                return;
+            }
+
+            try {
+                const progressContainer = document.getElementById('fetch-progress-container');
+                const progressBar = document.getElementById('fetch-progress-bar');
+                const progressText = document.getElementById('fetch-progress-status');
+
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                progressBar.textContent = '';
+                progressText.textContent = '0%';
+
+                const response = await fetch('/get_channel_users_stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        account_id: selectedAccountId,
+                        channel_name: channelName
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let batchCount = 0;
+                let totalFetched = 0;
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.trim().startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+
+                                if (data.type === 'progress') {
+                                    batchCount = data.batch || 0;
+                                    totalFetched = data.total_fetched || 0;
+                                    const percentage = Math.min(99, batchCount * 10);
+                                    progressBar.style.width = percentage + '%';
+                                    progressBar.textContent = `${percentage}%`;
+                                    progressText.textContent = `${percentage}% - ${totalFetched} users`;
+                                } else if (data.type === 'complete') {
+                                    progressBar.style.width = '100%';
+                                    progressBar.textContent = '100%';
+                                    progressText.textContent = '100% - Complete';
+                                    currentRequests = data;
+                                    displayRequestsInfo(data);
+                                    showMessage('message-message', `Found ${data.requests_count} users (${data.new_requests_count} new)`, 'success');
+                                    setTimeout(() => {
+                                        progressContainer.style.display = 'none';
+                                    }, 1000);
+                                } else if (data.type === 'error') {
+                                    progressContainer.style.display = 'none';
+                                    showMessage('message-message', data.message || 'Error occurred', 'error');
+                                }
+                            } catch (e) {
+                                console.error('Error parsing SSE data:', e);
+                            }
+                        }
+                    }
+                }
+
+            } catch (error) {
+                document.getElementById('fetch-progress-container').style.display = 'none';
+                showMessage('message-message', 'An error occurred', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        function displayRequestsInfo(data) {
+            const container = document.getElementById('requests-info');
+            if (!data || !data.requests) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+
+            let html = `
+                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    <h4 style="margin: 0 0 10px 0; color: #2e7d32;">Channel: ${data.channel_name || 'Unknown'}</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+                        <div style="background: white; padding: 10px; border-radius: 5px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #1976d2;">${data.requests_count || 0}</div>
+                            <div style="font-size: 12px; color: #666;">Total Users</div>
+                        </div>
+                        <div style="background: white; padding: 10px; border-radius: 5px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #388e3c;">${data.new_requests_count || 0}</div>
+                            <div style="font-size: 12px; color: #666;">New Users</div>
+                        </div>
+                        <div style="background: white; padding: 10px; border-radius: 5px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #f57c00;">${(data.requests_count || 0) - (data.new_requests_count || 0)}</div>
+                            <div style="font-size: 12px; color: #666;">Already Messaged</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function clearSavedLogs() {
+            sessionStorage.removeItem('activeSendingSession');
+            sessionStorage.removeItem('completedSendingSession');
+
+            const logsContainer = document.getElementById('logs-container');
+            const logTabs = document.getElementById('log-tabs');
+            logsContainer.innerHTML = '';
+            logTabs.innerHTML = '';
+            logTabs.classList.remove('show');
+
+            document.getElementById('clear-logs-btn').style.display = 'none';
+
+            showMessage('message-message', 'Logs cleared successfully', 'success');
+        }
+
+        async function checkAndRestoreActiveSession() {
+            const activeSession = sessionStorage.getItem('activeSendingSession');
+            const completedSession = sessionStorage.getItem('completedSendingSession');
+
+            if (completedSession) {
+                try {
+                    const sessionData = JSON.parse(completedSession);
+                    restoreCompletedSession(sessionData);
+                } catch (e) {
+                    console.error('Error restoring completed session:', e);
+                    sessionStorage.removeItem('completedSendingSession');
+                }
+            } else if (activeSession) {
+                try {
+                    const sessionData = JSON.parse(activeSession);
+                    const now = Date.now();
+                    const sessionAge = now - sessionData.startTime;
+
+                    if (sessionAge >= 7200000) {
+                        console.log('Session too old (>2 hours), removing from sessionStorage');
+                        sessionStorage.removeItem('activeSendingSession');
+                        return;
+                    }
+
+                    // Check if backend still has active tasks before restoring
+                    console.log('Checking backend for active tasks before restoring session...');
+                    try {
+                        const response = await fetch('/get_active_tasks');
+                        const data = await response.json();
+
+                        if (data.has_active_tasks) {
+                            console.log('Backend has active tasks, restoring session');
+                            restoreSession(sessionData);
+                        } else {
+                            console.log('Backend has no active tasks, clearing sessionStorage');
+                            sessionStorage.removeItem('activeSendingSession');
+                            showMessage('message-message', 'Previous session has ended', 'info');
+                        }
+                    } catch (error) {
+                        console.error('Error checking active tasks:', error);
+                        // If error checking backend, try to restore anyway
+                        restoreSession(sessionData);
+                    }
+                } catch (e) {
+                    console.error('Error restoring session:', e);
+                    sessionStorage.removeItem('activeSendingSession');
+                }
+            }
+        }
+
+        function restoreCompletedSession(sessionData) {
+            console.log('Restoring completed session:', sessionData);
+
+            switchMenu('messages');
+
+            const logsContainer = document.getElementById('logs-container');
+            const logTabs = document.getElementById('log-tabs');
+            logsContainer.innerHTML = '';
+            logTabs.innerHTML = '';
+            logTabs.classList.add('show');
+
+            document.getElementById('clear-logs-btn').style.display = 'inline-block';
+
+            sessionData.accountIds.forEach((accountId, index) => {
+                const accountName = sessionData.accountNames[accountId] || `Account ${accountId}`;
+                const logs = sessionData.logs[accountId] || [];
+                const messageCount = sessionData.messageCounts[accountId] || 0;
+
+                const tab = document.createElement('button');
+                tab.className = 'log-tab' + (index === 0 ? ' active' : '');
+                tab.innerHTML = `
+                    <span>${accountName}</span>
+                    <span class="badge">${messageCount}</span>
+                `;
+                tab.onclick = () => switchLogTab(accountId);
+                logTabs.appendChild(tab);
+
+                const logContainer = document.createElement('div');
+                logContainer.id = `log-${accountId}`;
+                logContainer.className = 'log-container account-log-container' + (index === 0 ? ' active' : '');
+                logContainer.innerHTML = logs.join('');
+                logsContainer.appendChild(logContainer);
+            });
+
+            showMessage('message-message', 'Previous logs restored. Click "Clear Logs" to remove.', 'info');
+        }
+
+        function restoreSession(sessionData) {
+            console.log('Restoring active session:', sessionData);
+
+            // Directly manipulate DOM without using switchMenu to avoid ANY unnecessary operations
+            try {
+                // Switch tabs manually
+                document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.menu-content').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.menu-tab')[1].classList.add('active');
+                document.getElementById('messages-menu').classList.add('active');
+
+                // Wait for DOM to settle
+                setTimeout(function () {
+                    try {
+                        isSending = true;
+                        const sendBtn = document.getElementById('send-btn');
+                        const stopBtn = document.getElementById('stop-btn');
+
+                        if (sendBtn) sendBtn.style.display = 'none';
+                        if (stopBtn) stopBtn.classList.add('show');
+                        showLoading('message-loading');
+
+                        const logsContainer = document.getElementById('logs-container');
+                        const logTabs = document.getElementById('log-tabs');
+
+                        if (!logsContainer || !logTabs) {
+                            console.error('Required elements not found, retrying...');
+                            setTimeout(() => restoreSession(sessionData), 500);
+                            return;
+                        }
+
+                        logsContainer.innerHTML = '';
+                        logTabs.innerHTML = '';
+                        logTabs.classList.add('show');
+
+                        activeAccountLogData = {};
+                        isCompleted = false;
+
+                        sessionData.accountIds.forEach((accountId, index) => {
+                            const accountName = sessionData.accountNames[accountId] || `Account ${accountId}`;
+
+                            const tab = document.createElement('button');
+                            tab.className = 'log-tab' + (index === 0 ? ' active' : '');
+                            tab.innerHTML = `
+                                <span>${accountName}</span>
+                                <span class="badge">0</span>
+                                <button class="stop-account-btn" onclick="stopSingleAccount(${accountId}, event)">
+                                    Stop
+                                </button>
+                            `;
+                            tab.onclick = (e) => {
+                                if (!e.target.classList.contains('stop-account-btn')) {
+                                    switchLogTab(accountId);
+                                }
+                            };
+                            logTabs.appendChild(tab);
+
+                            const logContainer = document.createElement('div');
+                            logContainer.id = `log-${accountId}`;
+                            logContainer.className = 'log-container account-log-container' + (index === 0 ? ' active' : '');
+                            logContainer.innerHTML = '<div class="log-entry info">🔄 Reconnecting to stream...</div>';
+                            logsContainer.appendChild(logContainer);
+
+                            const logData = {
+                                container: logContainer,
+                                tab: tab,
+                                messageCount: 0,
+                                stopBtn: tab.querySelector('.stop-account-btn')
+                            };
+
+                            // Store with both string and integer keys to handle type mismatches
+                            activeAccountLogData[accountId] = logData;
+                            activeAccountLogData[String(accountId)] = logData;
+                            activeAccountLogData[parseInt(accountId)] = logData;
+                        });
+
+                        console.log('activeAccountLogData keys after creation:', Object.keys(activeAccountLogData));
+
+                        console.log('Session UI restored, connecting to stream...');
+                        reconnectToStream(activeAccountLogData, sessionData);
+                    } catch (error) {
+                        console.error('Error during session restore:', error);
+                        sessionStorage.removeItem('activeSendingSession');
+                    }
+                }, 300);
+            } catch (error) {
+                console.error('Error switching to messages menu:', error);
+            }
+        }
+
+        function reconnectToStream(accountLogData, sessionData = null) {
+            let reconnectAttempts = 0;
+            activeAccountLogData = accountLogData;
+            isCompleted = false;
+
+            function connect() {
+                // Clear any existing timer
+                if (activeReconnectTimeout) {
+                    clearTimeout(activeReconnectTimeout);
+                    activeReconnectTimeout = null;
+                }
+
+                // Close existing connection if any
+                if (activeEventSource) {
+                    try {
+                        activeEventSource.close();
+                    } catch (e) {
+                        console.error('Error closing EventSource:', e);
+                    }
+                }
+
+                reconnectAttempts++;
+                console.log(`Creating EventSource connection (attempt ${reconnectAttempts})...`);
+                activeEventSource = new EventSource('/stream_messages');
+
+                activeEventSource.onopen = function () {
+                    console.log('EventSource connected');
+                    reconnectAttempts = 0;  // Reset on successful connection
+                };
+
+                activeEventSource.onmessage = function (event) {
+                    try {
+                        const data = JSON.parse(event.data);
+
+                        // Enhanced debug logging with timestamp
+                        const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
+                        console.log(`[${timestamp}] SSE Message Received:`, {
+                            type: data.type,
+                            account_id: data.account_id,
+                            message: data.message?.substring(0, 100),
+                            full_data: data
+                        });
+
+                        if (data.type === 'keepalive') {
+                            console.log(`[${timestamp}] Keepalive ping received`);
+                            return;
+                        }
+
+                        // Handle error - session not found
+                        if (data.type === 'error') {
+                            console.error(`[${timestamp}] ❌ Backend error:`, data.message);
+
+                            // Session doesn't exist anymore - clean up
+                            if (data.message && (data.message.includes('No active sending tasks') || data.message.includes('No session ID'))) {
+                                console.log('Session not found - cleaning up UI and sessionStorage');
+
+                                // Close connection
+                                if (activeEventSource) {
+                                    activeEventSource.close();
+                                    activeEventSource = null;
+                                }
+
+                                // Clean up UI
+                                hideLoading('message-loading');
+                                isSending = false;
+                                isCompleted = true;
+                                document.getElementById('send-btn').style.display = 'inline-block';
+                                document.getElementById('stop-btn').classList.remove('show');
+
+                                // Clear sessionStorage
+                                sessionStorage.removeItem('activeSendingSession');
+
+                                // Show message
+                                Object.values(activeAccountLogData).forEach(logData => {
+                                    logData.container.innerHTML = '<div class="log-entry error">❌ Session has ended. The message sending task is no longer active.</div>';
+                                });
+
+                                showMessage('message-message', 'Session ended. Please start a new session.', 'info');
+                                return;
+                            }
+
+                            // Other errors - just show
+                            Object.values(activeAccountLogData).forEach(logData => {
+                                logData.container.innerHTML += `<div class="log-entry error">❌ ${data.message}</div>`;
+                                logData.container.scrollTop = logData.container.scrollHeight;
+                            });
+                            return;
+                        }
+
+                        // Handle account_info to sync UI state with backend
+                        if (data.type === 'account_info') {
+                            const accountId = data.account_id;
+                            console.log(`[${timestamp}] Received account_info for account ${accountId} (${data.account_name}), is_completed=${data.is_completed}`);
+
+                            // If account UI already exists, just update the reconnection message
+                            const accountData = activeAccountLogData[accountId];
+                            if (accountData) {
+                                // Clear the "Reconnecting..." message and add a success message
+                                accountData.container.innerHTML = `<div class="log-entry info" style="color: #4caf50;">✅ Connected to active session (started at ${data.started_at})</div>`;
+
+                                // If account already completed, set button to "Done"
+                                if (data.is_completed && accountData.stopBtn && !accountData.stopBtn.classList.contains('stopped')) {
+                                    accountData.stopBtn.textContent = 'Done';
+                                    accountData.stopBtn.classList.add('stopped');
+                                    accountData.stopBtn.disabled = true;
+                                    console.log(`[${timestamp}] Set button to "Done" for completed account ${accountId}`);
+                                }
+
+                                console.log(`[${timestamp}] Updated account ${accountId} with connection confirmation`);
+                            }
+                            return;
+                        }
+
+                        const accountId = data.account_id;
+                        const accountData = activeAccountLogData[accountId];
+
+                        // Enhanced debug logging
+                        console.log(`[${timestamp}] Processing message for Account ID: ${accountId}`, {
+                            accountDataFound: accountData ? 'YES' : 'NO',
+                            availableAccounts: Object.keys(activeAccountLogData),
+                            messageType: data.type
+                        });
+
+                        // Handle stage messages (account_id = 0) - show in all tabs
+                        if (accountId === 0 || accountId === '0') {
+                            const accountCount = Object.keys(activeAccountLogData).length;
+                            console.log(`[${timestamp}] STAGE MESSAGE - Broadcasting to ${accountCount} account(s)`, {
+                                messageType: data.type,
+                                messagePreview: data.message?.substring(0, 50)
+                            });
+
+                            // This is a stage message, show in all account logs
+                            Object.values(activeAccountLogData).forEach(logData => {
+                                const logEntry = document.createElement('div');
+                                logEntry.className = 'log-entry ' + (data.type || 'info');
+                                logEntry.textContent = data.message || '';
+                                logData.container.appendChild(logEntry);
+                                logData.container.scrollTop = logData.container.scrollHeight;
+                            });
+                            console.log(`[${timestamp}] Stage message successfully added to all ${accountCount} containers`);
+                            return;
+                        }
+
+                        // If account not found, try to add log to all containers as fallback
+                        if (!accountData && data.type !== 'complete') {
+                            console.warn(`[${timestamp}] ⚠️ FALLBACK MODE - Account ${accountId} not found in activeAccountLogData`, {
+                                searchedAccountId: accountId,
+                                availableAccounts: Object.keys(activeAccountLogData),
+                                messageType: data.type,
+                                action: 'Broadcasting to all containers'
+                            });
+
+                            Object.values(activeAccountLogData).forEach(logData => {
+                                const logEntry = document.createElement('div');
+                                logEntry.className = 'log-entry ' + (data.type || 'info');
+                                logEntry.textContent = `[Account ${accountId}] ${data.message || ''}`;
+                                logData.container.appendChild(logEntry);
+                                logData.container.scrollTop = logData.container.scrollHeight;
+                            });
+                            console.log(`[${timestamp}] Fallback broadcast complete`);
+                            return;
+                        }
+
+                        let logClass = 'info';
+
+                        if (data.type === 'success') {
+                            logClass = 'success';
+                            if (accountData) {
+                                accountData.messageCount++;
+                                console.log(`[${timestamp}] ✅ SUCCESS for Account ${accountId} - Total messages: ${accountData.messageCount}`);
+                            }
+                        } else if (data.type === 'error') {
+                            logClass = 'error';
+                            console.error(`[${timestamp}] ❌ ERROR for Account ${accountId}:`, data.message);
+                        } else if (data.type === 'warning') {
+                            logClass = 'warning';
+                            console.warn(`[${timestamp}] ⚠️ WARNING for Account ${accountId}:`, data.message);
+
+                            if (data.message && data.message.includes('Stop signal received')) {
+                                console.log(`[${timestamp}] STOP signal detected for Account ${accountId} - Updating UI`);
+                                if (accountData && accountData.stopBtn) {
+                                    accountData.stopBtn.textContent = 'Stopped';
+                                    accountData.stopBtn.classList.add('stopped');
+                                    accountData.stopBtn.disabled = true;
+                                }
+                            }
+                        } else if (data.type === 'account_complete') {
+                            // Individual account completed - update button to "Done" immediately
+                            console.log(`[${timestamp}] ✅ ACCOUNT COMPLETE signal for Account ${accountId} - Updating button to Done`);
+                            if (accountData && accountData.stopBtn && !accountData.stopBtn.classList.contains('stopped')) {
+                                accountData.stopBtn.textContent = 'Done';
+                                accountData.stopBtn.classList.add('stopped');
+                                accountData.stopBtn.disabled = true;
+                            }
+                            return; // Don't add to log, the info message already added
+                        } else if (data.type === 'complete') {
+                            console.log(`[${timestamp}] 🏁 COMPLETE signal received - Closing EventSource and cleaning up`);
+
+                            isCompleted = true;
+                            if (activeEventSource) {
+                                activeEventSource.close();
+                                activeEventSource = null;
+                            }
+                            if (activeReconnectTimeout) {
+                                clearTimeout(activeReconnectTimeout);
+                                activeReconnectTimeout = null;
+                            }
+                            hideLoading('message-loading');
+                            isSending = false;
+                            document.getElementById('send-btn').style.display = 'inline-block';
+                            document.getElementById('stop-btn').classList.remove('show');
+                            document.getElementById('clear-logs-btn').style.display = 'inline-block';
+
+                            sessionStorage.removeItem('activeSendingSession');
+
+                            if (sessionData) {
+                                const completedSessionData = {
+                                    accountIds: sessionData.accountIds,
+                                    accountNames: sessionData.accountNames,
+                                    logs: {},
+                                    messageCounts: {},
+                                    completedAt: Date.now()
+                                };
+
+                                Object.keys(activeAccountLogData).forEach(accountId => {
+                                    const data = activeAccountLogData[accountId];
+                                    completedSessionData.logs[accountId] = data.container.innerHTML;
+                                    completedSessionData.messageCounts[accountId] = data.messageCount;
+                                });
+
+                                sessionStorage.setItem('completedSendingSession', JSON.stringify(completedSessionData));
+                            }
+
+                            Object.values(activeAccountLogData).forEach(data => {
+                                if (data.stopBtn && !data.stopBtn.classList.contains('stopped')) {
+                                    data.stopBtn.textContent = 'Done';
+                                    data.stopBtn.classList.add('stopped');
+                                    data.stopBtn.disabled = true;
+                                }
+                            });
+
+                            showMessage('message-message', data.message || 'All accounts completed!', 'success');
+                            return;
+                        }
+
+                        if (accountData) {
+                            const badge = accountData.tab.querySelector('.badge');
+                            if (badge) {
+                                badge.textContent = accountData.messageCount;
+                            }
+
+                            accountData.container.innerHTML += `<div class="log-entry ${logClass}">${data.message}</div>`;
+                            accountData.container.scrollTop = accountData.container.scrollHeight;
+                        }
+
+                    } catch (e) {
+                        console.error('Error parsing SSE data:', e);
+                    }
+                };
+
+                activeEventSource.onerror = function (error) {
+                    console.error('EventSource error:', error);
+                    console.log('EventSource readyState:', activeEventSource ? activeEventSource.readyState : 'null');
+
+                    // Close the errored connection
+                    if (activeEventSource) {
+                        activeEventSource.close();
+                        activeEventSource = null;
+                    }
+
+                    // Check if sending is still active or if completed
+                    if (!isSending || isCompleted) {
+                        console.log('Not reconnecting - sending stopped or completed');
+                        return;
+                    }
+
+                    // If too many reconnection attempts, assume session is dead
+                    if (reconnectAttempts >= 5) {
+                        console.error('Too many reconnection attempts. Session may have ended.');
+
+                        // Clean up UI
+                        hideLoading('message-loading');
+                        isSending = false;
+                        document.getElementById('send-btn').style.display = 'inline-block';
+                        document.getElementById('stop-btn').classList.remove('show');
+
+                        // Clear sessionStorage
+                        sessionStorage.removeItem('activeSendingSession');
+
+                        // Show error message
+                        Object.values(activeAccountLogData).forEach(data => {
+                            data.container.innerHTML += '<div class="log-entry error">❌ Unable to connect to session. The session may have been stopped or expired.</div>';
+                            data.container.scrollTop = data.container.scrollHeight;
+                        });
+
+                        showMessage('message-message', 'Unable to connect. The session may have ended.', 'error');
+                        return;
+                    }
+
+                    // AUTO-RECONNECT: Unlimited attempts with exponential backoff
+                    const retryDelay = Math.min(3000 * Math.pow(1.5, Math.min(reconnectAttempts, 5)), 30000); // Max 30 seconds
+
+                    console.log(`Connection lost. Auto-reconnecting in ${retryDelay / 1000}s (attempt ${reconnectAttempts})...`);
+
+                    // Add reconnection message to all log containers
+                    Object.values(activeAccountLogData).forEach(data => {
+                        data.container.innerHTML += `<div class="log-entry warning">⚠️ Connection temporarily lost. Auto-reconnecting in ${Math.round(retryDelay / 1000)}s...</div>`;
+                        data.container.scrollTop = data.container.scrollHeight;
+                    });
+
+                    activeReconnectTimeout = setTimeout(() => {
+                        Object.values(activeAccountLogData).forEach(data => {
+                            data.container.innerHTML += '<div class="log-entry info">🔄 Reconnecting to server...</div>';
+                            data.container.scrollTop = data.container.scrollHeight;
+                        });
+                        connect();
+                    }, retryDelay);
+                };
+            }
+
+            // Start initial connection
+            connect();
+        }
+
+        window.addEventListener('load', function () {
+            // Check for sessionStorage first (for page refreshes)
+            checkAndRestoreActiveSession();
+
+            // Then check backend for active tasks (in case sessionStorage was cleared)
+            setTimeout(() => {
+                // Only check backend if we didn't already restore from sessionStorage
+                const activeSession = sessionStorage.getItem('activeSendingSession');
+                if (!activeSession) {
+                    restoreActiveTasks();
+                }
+            }, 1000);
+        });
+
+        async function fetchWithAuth(url, options = {}) {
+            try {
+                const response = await fetch(url, options);
+
+                if (response.status === 401) {
+                    const data = await response.json();
+                    alert(data.message || 'Your session has expired. Please login again.');
+                    window.location.href = '/';
+                    return null;
+                }
+
+                return response;
+            } catch (error) {
+                console.error('Fetch error:', error);
+                throw error;
+            }
+        }
+
+        function switchMenu(menu, callback, skipAccountsLoad = false) {
+            document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.menu-content').forEach(c => c.classList.remove('active'));
+
+            if (menu === 'accounts') {
+                document.querySelectorAll('.menu-tab')[0].classList.add('active');
+                document.getElementById('accounts-menu').classList.add('active');
+                loadAccounts();
+                if (callback) setTimeout(callback, 100);
+            } else if (menu === 'messages') {
+                document.querySelectorAll('.menu-tab')[1].classList.add('active');
+                document.getElementById('messages-menu').classList.add('active');
+
+                // Only load accounts if not skipping (for restore scenarios)
+                if (!skipAccountsLoad) {
+                    loadAccountsForCheckboxes();
+                }
+
+                // Wait for DOM to update before calling callback
+                if (callback) setTimeout(callback, 300);
+            } else if (menu === 'proxy') {
+                document.querySelectorAll('.menu-tab')[2].classList.add('active');
+                document.getElementById('proxy-menu').classList.add('active');
+                loadProxies();
+                if (callback) setTimeout(callback, 100);
+            }
+        }
+
+
+        function showMessage(elementId, text, type) {
+            const messageEl = document.getElementById(elementId);
+            messageEl.textContent = text;
+            messageEl.className = `message ${type} show`;
+            setTimeout(() => messageEl.classList.remove('show'), 5000);
+        }
+
+        function showLoading(elementId) {
+            document.getElementById(elementId).classList.add('show');
+        }
+
+        function hideLoading(elementId) {
+            document.getElementById(elementId).classList.remove('show');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        async function sendCode() {
+            const phone = document.getElementById('phone').value;
+            const accountName = document.getElementById('account-name').value;
+            const apiId = document.getElementById('api-id').value;
+            const apiHash = document.getElementById('api-hash').value;
+            const proxyId = document.getElementById('account-proxy-select').value;
+
+            if (!phone || !accountName || !apiId || !apiHash) {
+                showMessage('account-message', 'Please fill all fields', 'error');
+                return;
+            }
+
+            showLoading('account-loading');
+
+            try {
+                const requestBody = { phone, account_name: accountName, api_id: apiId, api_hash: apiHash };
+                if (proxyId) {
+                    requestBody.proxy_id = parseInt(proxyId);
+                }
+
+                const response = await fetchWithAuth('/send_code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response) return;
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('account-message', 'Code sent! Check your Telegram', 'success');
+                    document.getElementById('verification-section').style.display = 'block';
+                } else {
+                    showMessage('account-message', data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('account-message', 'An error occurred', 'error');
+            } finally {
+                hideLoading('account-loading');
+            }
+        }
+
+        async function handleAddAccount(e) {
+            e.preventDefault();
+
+            const phone = document.getElementById('phone').value;
+            const accountName = document.getElementById('account-name').value;
+            const apiId = document.getElementById('api-id').value;
+            const apiHash = document.getElementById('api-hash').value;
+            const code = document.getElementById('verification-code').value;
+            const password = document.getElementById('2fa-password').value;
+            const proxyId = document.getElementById('account-proxy-select').value;
+
+            showLoading('account-loading');
+
+            try {
+                const requestBody = { phone, account_name: accountName, api_id: apiId, api_hash: apiHash, code, password };
+                if (proxyId) {
+                    requestBody.proxy_id = parseInt(proxyId);
+                }
+
+                const response = await fetchWithAuth('/add_account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response) return;
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('account-message', 'Account added successfully!', 'success');
+                    document.getElementById('add-account-form').reset();
+                    document.getElementById('verification-section').style.display = 'none';
+                    loadAccounts();
+                } else if (data.needs_password) {
+                    document.getElementById('password-section').style.display = 'block';
+                    showMessage('account-message', '2FA password required', 'error');
+                } else {
+                    showMessage('account-message', data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('account-message', 'An error occurred', 'error');
+            } finally {
+                hideLoading('account-loading');
+            }
+        }
+
+        async function loadAccounts() {
+            try {
+                await loadProxies();
+
+                const response = await fetchWithAuth('/get_accounts');
+                if (!response) return;
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentAccounts = data.accounts;
+                    console.log('Loaded accounts:', data.accounts.length);
+                    displayAccounts(data.accounts);
+                } else {
+                    console.error('Failed to load accounts:', data.message);
+                    const container = document.getElementById('accounts-list');
+                    container.innerHTML = `<p style="text-align: center; color: #dc3545;">Error loading accounts: ${data.message}</p>`;
+                }
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+                const container = document.getElementById('accounts-list');
+                container.innerHTML = '<p style="text-align: center; color: #dc3545;">Failed to load accounts. Please refresh the page.</p>';
+            }
+        }
+
+        async function checkDatabaseHealth() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                console.log('Database health:', data);
+
+                if (data.accounts === 0) {
+                    console.warn('No accounts found in database');
+                }
+
+                return data;
+            } catch (error) {
+                console.error('Health check failed:', error);
+                return null;
+            }
+        }
+
+        async function debugAccounts() {
+            try {
+                const response = await fetch('/debug/accounts');
+                const data = await response.json();
+                console.log('Debug accounts:', data);
+                return data;
+            } catch (error) {
+                console.error('Debug failed:', error);
+                return null;
+            }
+        }
+
+        function displayAccounts(accounts) {
+            const container = document.getElementById('accounts-list');
+
+            if (accounts.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">No accounts added</p>';
+                return;
+            }
+
+            container.innerHTML = accounts.map(account => {
+                const statusColor = account.session_status === 'active' ? 'active' : 'inactive';
+                return `
+                <div class="account-item" id="account-${account.id}">
+                    <div class="account-header">
+                        <div>
+                            <h3>
+                                <span class="status-indicator ${statusColor}"></span>
+                                ${account.account_name} (${account.phone})
+                                <span class="status-badge" id="status-${account.id}" style="display: none;"></span>
+                            </h3>
+                            ${account.proxy ? `<div style="font-size: 13px; color: #666; margin-top: 5px;">
+                                🔒 Proxy: ${account.proxy.host}:${account.proxy.port} 
+                                <span style="color: ${account.proxy.status === 'online' ? '#4caf50' : '#f44336'}">
+                                    (${account.proxy.status})
+                                </span>
+                            </div>` : '<div style="font-size: 13px; color: #999; margin-top: 5px;">No proxy</div>'}
+                        </div>
+                        <div class="account-actions">
+                            <button class="btn btn-secondary" onclick="checkAccountStatus(${account.id})">Check Status</button>
+                            <button class="btn" onclick="showAddChannelModal(${account.id})">Add Channel</button>
+                            <button class="btn btn-danger" onclick="deleteAccount(${account.id})">Delete</button>
+                        </div>
+                    </div>
+                    <div class="channels-list">
+                        <strong>Channels:</strong>
+                        ${account.channels.length === 0 ? '<p>No channels added</p>' :
+                        account.channels.map(ch => `
+                            <div class="channel-item">
+                                <span>${ch.channel_name || ch.channel_id}</span>
+                                <button class="btn btn-danger" onclick="deleteChannel(${ch.id})">Delete</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function showAddChannelModal(accountId) {
+            document.getElementById('selected-account-id').value = accountId;
+            openModal('add-channel-modal');
+        }
+
+        async function handleAddChannel(e) {
+            e.preventDefault();
+
+            const accountId = document.getElementById('selected-account-id').value;
+            const channelId = document.getElementById('channel-id').value;
+
+            try {
+                const response = await fetch('/add_channel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account_id: accountId, channel_id: channelId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('channel-message', 'Channel added successfully!', 'success');
+                    document.getElementById('add-channel-form').reset();
+                    setTimeout(() => {
+                        closeModal('add-channel-modal');
+                        loadAccounts();
+                    }, 1500);
+                } else {
+                    showMessage('channel-message', data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('channel-message', 'An error occurred', 'error');
+            }
+        }
+
+        async function deleteAccount(accountId) {
+            if (!confirm('Are you sure you want to delete this account?')) return;
+
+            try {
+                const response = await fetch(`/delete_account/${accountId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    loadAccounts();
+                }
+            } catch (error) {
+                console.error('Error deleting account:', error);
+            }
+        }
+
+        async function deleteChannel(channelId) {
+            if (!confirm('Are you sure you want to delete this channel?')) return;
+
+            try {
+                const response = await fetch(`/delete_channel/${channelId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    loadAccounts();
+                }
+            } catch (error) {
+                console.error('Error deleting channel:', error);
+            }
+        }
+
+        function loadAccountsForCheckboxes() {
+            const container = document.getElementById('accounts-checkboxes');
+
+            // Safety check: if container doesn't exist, skip
+            if (!container) {
+                console.warn('accounts-checkboxes container not found, skipping load');
+                return;
+            }
+
+            if (currentAccounts.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center;">No accounts available</p>';
+                return;
+            }
+
+            container.innerHTML = currentAccounts.map(account => `
+                <div style="padding: 8px; margin-bottom: 5px; background: white; border-radius: 5px;">
+                    <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                        <input type="checkbox" class="account-checkbox" value="${account.id}"
+                               style="width: auto; margin-right: 10px; cursor: pointer;">
+                        <span style="font-weight: 500;">${account.account_name} (${account.phone})</span>
+                        <span style="margin-left: auto; color: #667eea; font-size: 12px;">${account.channels.length} channel(s) | ${account.daily_limit || 500} limit</span>
+                    </label>
+                </div>
+            `).join('');
+        }
+
+        function selectAllAccounts() {
+            document.querySelectorAll('.account-checkbox').forEach(cb => cb.checked = true);
+        }
+
+        function deselectAllAccounts() {
+            document.querySelectorAll('.account-checkbox').forEach(cb => cb.checked = false);
+        }
+
+        function getSelectedAccountIds() {
+            const checkboxes = document.querySelectorAll('.account-checkbox:checked');
+            return Array.from(checkboxes).map(cb => parseInt(cb.value));
+        }
+
+        async function restoreActiveTasks() {
+            try {
+                const response = await fetch('/get_active_tasks');
+                const data = await response.json();
+
+                if (data.success && data.tasks && data.tasks.length > 0) {
+                    console.log('Found active tasks:', data.tasks);
+
+                    // Group tasks by session_id (for send_messages tasks)
+                    const sendMessagesTasks = data.tasks.filter(t => t.task_type === 'send_messages');
+                    const fetchUsersTasks = data.tasks.filter(t => t.task_type === 'fetch_users');
+
+                    if (sendMessagesTasks.length > 0) {
+                        // Get all account IDs and create session data
+                        const accountIds = sendMessagesTasks.map(t => t.account_id);
+                        const accountNames = {};
+                        sendMessagesTasks.forEach(t => {
+                            accountNames[t.account_id] = t.account_name;
+                        });
+
+                        const sessionData = {
+                            accountIds: accountIds,
+                            accountNames: accountNames,
+                            message: sendMessagesTasks[0].message || '',
+                            skipSent: sendMessagesTasks[0].skip_sent || false,
+                            userCountLimits: {},
+                            startTime: new Date(sendMessagesTasks[0].started_at).getTime()
+                        };
+
+                        sendMessagesTasks.forEach(t => {
+                            sessionData.userCountLimits[t.account_id] = t.user_count_limit || 100;
+                        });
+
+                        console.log('Restoring send messages session:', sessionData);
+                        // Use a small delay to ensure this doesn't conflict with checkAndRestoreActiveSession
+                        setTimeout(() => restoreSession(sessionData), 100);
+                    }
+
+                    if (fetchUsersTasks.length > 0) {
+                        for (const task of fetchUsersTasks) {
+                            showMessage('message-message', `Continuing fetch for ${task.account_name}...`, 'info');
+                            continueRefreshRequests([task.account_id]);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error restoring active tasks:', error);
+            }
+        }
+
+        function continueRefreshRequests(accountIds) {
+            const progressContainer = document.getElementById('fetch-progress-container');
+            const progressBar = document.getElementById('fetch-progress-bar');
+            const progressStatus = document.getElementById('fetch-progress-status');
+            const progressDetails = document.getElementById('fetch-progress-details');
+            const requestsInfo = document.getElementById('requests-info');
+
+            requestsInfo.style.display = 'none';
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressStatus.textContent = '0%';
+            progressDetails.innerHTML = '<p style="color: #FFA500; margin: 3px 0;">⚠️ Reconnecting to active task...</p>';
+
+            const allResults = [];
+            const channelProgress = {};
+            let totalEstimatedUsers = 0;
+            let totalFetchedUsers = 0;
+            let totalChannels = 0;
+            let completedChannels = 0;
+
+            fetch('/stream_all_join_requests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ account_ids: accountIds })
+            }).then(response => {
+                if (!response.ok) throw new Error('Failed to reconnect');
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                function processStream() {
+                    reader.read().then(({ done, value }) => {
+                        if (done) {
+                            progressDetails.innerHTML += '<p style="color: #28a745; margin: 5px 0; font-weight: bold;">✅ Task completed successfully!</p>';
+                            return;
+                        }
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop();
+
+                        for (const line of lines) {
+                            if (!line.trim() || !line.startsWith('data: ')) continue;
+
+                            try {
+                                const data = JSON.parse(line.substring(6));
+
+                                if (data.type === 'keepalive') continue;
+
+                                if (data.type === 'info') {
+                                    if (data.message.includes('Processing channel')) {
+                                        totalChannels++;
+                                        totalEstimatedUsers += 10000;
+                                        channelProgress[data.channel_id] = { fetched: 0, estimated: 10000, status: 'processing' };
+                                    }
+                                    progressDetails.innerHTML += `<p style="color: #2196F3; margin: 3px 0;">ℹ️ ${data.message}</p>`;
+                                } else if (data.type === 'progress') {
+                                    if (data.channel_id && channelProgress[data.channel_id]) {
+                                        channelProgress[data.channel_id].fetched = data.fetched;
+                                        totalFetchedUsers = Object.values(channelProgress).reduce((sum, ch) => sum + ch.fetched, 0);
+                                    }
+
+                                    const progress = totalEstimatedUsers > 0 ? Math.min(100, (totalFetchedUsers / totalEstimatedUsers) * 100) : 0;
+                                    progressBar.style.width = `${progress}%`;
+                                    progressStatus.textContent = `${Math.round(progress)}%`;
+                                    progressDetails.innerHTML += `<p style="color: #4CAF50; margin: 3px 0;">📊 ${data.message}</p>`;
+                                } else if (data.type === 'channel_complete') {
+                                    completedChannels++;
+                                    if (data.channel_id && channelProgress[data.channel_id]) {
+                                        channelProgress[data.channel_id].status = 'completed';
+                                        totalFetchedUsers = Object.values(channelProgress).reduce((sum, ch) => sum + ch.fetched, 0);
+                                    }
+                                    progressDetails.innerHTML += `<p style="color: #28a745; margin: 3px 0;">✅ ${data.message}</p>`;
+                                } else if (data.type === 'success') {
+                                    progressDetails.innerHTML += `<p style="color: #28a745; margin: 3px 0; font-weight: bold;">✅ ${data.message}</p>`;
+                                } else if (data.type === 'warning') {
+                                    progressDetails.innerHTML += `<p style="color: #FFA500; margin: 3px 0;">⚠️ ${data.message}</p>`;
+                                } else if (data.type === 'error') {
+                                    progressDetails.innerHTML += `<p style="color: #dc3545; margin: 3px 0;">❌ ${data.message}</p>`;
+                                } else if (data.type === 'all_finished') {
+                                    progressBar.style.width = '100%';
+                                    progressStatus.textContent = '100%';
+                                    progressDetails.innerHTML += '<p style="color: #28a745; margin: 5px 0; font-weight: bold;">✅ All tasks completed!</p>';
+                                    setTimeout(() => loadAccounts(), 1000);
+                                    return;
+                                }
+
+                                progressDetails.scrollTop = progressDetails.scrollHeight;
+                            } catch (e) {
+                                console.error('Error parsing SSE data:', e);
+                            }
+                        }
+
+                        processStream();
+                    }).catch(error => {
+                        console.error('Stream error:', error);
+                        progressDetails.innerHTML += `<p style="color: #dc3545; margin: 3px 0;">❌ Connection error: ${error.message}</p>`;
+                    });
+                }
+
+                processStream();
+            }).catch(error => {
+                console.error('Reconnection error:', error);
+                progressDetails.innerHTML += `<p style="color: #dc3545; margin: 3px 0;">❌ Failed to reconnect: ${error.message}</p>`;
+            });
+        }
+
+        async function continueSendMessagesWithTask(accountIds, task) {
+            const logArea = document.getElementById('message-log-tabs');
+            const logsContainer = document.getElementById('message-logs-container');
+
+            // Safety check: if elements don't exist, skip
+            if (!logArea || !logsContainer) {
+                console.warn('Log containers not found, skipping continueSendMessagesWithTask');
+                return;
+            }
+
+            logArea.innerHTML = '';
+            logsContainer.innerHTML = '';
+
+            logArea.style.display = 'flex';
+            logsContainer.style.display = 'block';
+
+            activeAccountLogData = {};
+            isCompleted = false;
+
+            accountIds.forEach((accountId, index) => {
+                const account = currentAccounts.find(acc => acc.id === accountId);
+                const accountName = account ? account.account_name : `Account ${accountId}`;
+
+                const tab = document.createElement('div');
+                tab.className = 'log-tab' + (index === 0 ? ' active' : '');
+                tab.innerHTML = `
+                    <span class="tab-name">${accountName}</span>
+                    <span class="badge">0</span>
+                    <button class="stop-account-btn" onclick="stopSingleAccount(${accountId}, event)">Stop</button>
+                `;
+                tab.onclick = (e) => {
+                    if (!e.target.classList.contains('stop-account-btn')) {
+                        switchLogTab(accountId);
+                    }
+                };
+                logArea.appendChild(tab);
+
+                const logContainer = document.createElement('div');
+                logContainer.id = `log-${accountId}`;
+                logContainer.className = 'account-log-container' + (index === 0 ? ' active' : '');
+                logsContainer.appendChild(logContainer);
+
+                activeAccountLogData[accountId] = {
+                    container: logContainer,
+                    tab: tab,
+                    stopBtn: tab.querySelector('.stop-account-btn'),
+                    messageCount: 0
+                };
+
+                logContainer.innerHTML = '<div class="log-entry info" style="color: #FFA500;">⚠️ Reconnecting to active task...</div>';
+                logContainer.innerHTML += `<div class="log-entry info">ℹ️ Continuing from: ${task.started_at}</div>`;
+            });
+
+            function createEventSource() {
+                activeEventSource = new EventSource('/stream_messages');
+
+                activeEventSource.onmessage = function (event) {
+                    try {
+                        const data = JSON.parse(event.data);
+
+                        if (data.type === 'keepalive') {
+                            return;
+                        }
+
+                        const accountData = activeAccountLogData[data.account_id];
+
+                        let logClass = 'info';
+                        if (data.type === 'success') {
+                            logClass = 'success';
+                            if (accountData) accountData.messageCount++;
+                        } else if (data.type === 'error') {
+                            logClass = 'error';
+                        } else if (data.type === 'warning') {
+                            logClass = 'warning';
+                        } else if (data.type === 'account_complete') {
+                            // Individual account completed - update button to "Done" immediately
+                            console.log(`Account ${data.account_id} completed - updating button to Done`);
+                            if (accountData && accountData.stopBtn && !accountData.stopBtn.classList.contains('stopped')) {
+                                accountData.stopBtn.textContent = 'Done';
+                                accountData.stopBtn.classList.add('stopped');
+                                accountData.stopBtn.disabled = true;
+                            }
+                            return; // Don't add to log
+                        }
+
+                        if (data.type === 'complete') {
+                            isCompleted = true;
+                            if (activeEventSource) {
+                                activeEventSource.close();
+                                activeEventSource = null;
+                            }
+
+                            Object.values(activeAccountLogData).forEach(data => {
+                                if (data.stopBtn && !data.stopBtn.classList.contains('stopped')) {
+                                    data.stopBtn.textContent = 'Done';
+                                    data.stopBtn.classList.add('stopped');
+                                    data.stopBtn.disabled = true;
+                                }
+                            });
+
+                            showMessage('message-message', data.message || 'All accounts completed!', 'success');
+                            return;
+                        }
+
+                        if (accountData) {
+                            const badge = accountData.tab.querySelector('.badge');
+                            if (badge) {
+                                badge.textContent = accountData.messageCount;
+                            }
+
+                            accountData.container.innerHTML += `<div class="log-entry ${logClass}">${data.message}</div>`;
+                            accountData.container.scrollTop = accountData.container.scrollHeight;
+                        }
+
+                    } catch (e) {
+                        console.error('Error parsing SSE data:', e);
+                    }
+                };
+
+                activeEventSource.onerror = function (error) {
+                    console.error('EventSource error:', error);
+                    if (activeEventSource) {
+                        activeEventSource.close();
+                        activeEventSource = null;
+                    }
+
+                    if (isCompleted) {
+                        console.log('Already completed, not reconnecting');
+                        return;
+                    }
+
+                    // AUTO-RECONNECT: Keep trying until completed
+                    console.log('Connection lost. Auto-reconnecting in 3 seconds...');
+                    Object.values(activeAccountLogData).forEach(data => {
+                        data.container.innerHTML += '<div class="log-entry warning">⚠️ Connection temporarily lost. Auto-reconnecting in 3 seconds...</div>';
+                        data.container.scrollTop = data.container.scrollHeight;
+                    });
+
+                    // Auto-reconnect after 3 seconds
+                    activeReconnectTimeout = setTimeout(() => {
+                        console.log('Attempting to reconnect...');
+                        Object.values(activeAccountLogData).forEach(data => {
+                            data.container.innerHTML += '<div class="log-entry info">🔄 Reconnecting to server...</div>';
+                            data.container.scrollTop = data.container.scrollHeight;
+                        });
+                        createEventSource();
+                    }, 3000);
+                };
+
+                return activeEventSource;
+            }
+
+            createEventSource();
+        }
+
+        function continueSendMessages(accountIds) {
+            const logArea = document.getElementById('message-log-tabs');
+            const logsContainer = document.getElementById('message-logs-container');
+
+            logArea.innerHTML = '';
+            logsContainer.innerHTML = '';
+
+            logArea.style.display = 'flex';
+            logsContainer.style.display = 'block';
+
+            activeAccountLogData = {};
+            isCompleted = false;
+
+            accountIds.forEach((accountId, index) => {
+                const account = currentAccounts.find(acc => acc.id === accountId);
+                const accountName = account ? account.account_name : `Account ${accountId}`;
+
+                const tab = document.createElement('div');
+                tab.className = 'log-tab' + (index === 0 ? ' active' : '');
+                tab.innerHTML = `
+                    <span class="tab-name">${accountName}</span>
+                    <span class="badge">0</span>
+                    <button class="stop-account-btn" onclick="stopSingleAccount(${accountId}, event)">Stop</button>
+                `;
+                tab.onclick = (e) => {
+                    if (!e.target.classList.contains('stop-account-btn')) {
+                        switchLogTab(accountId);
+                    }
+                };
+                logArea.appendChild(tab);
+
+                const logContainer = document.createElement('div');
+                logContainer.id = `log-${accountId}`;
+                logContainer.className = 'account-log-container' + (index === 0 ? ' active' : '');
+                logsContainer.appendChild(logContainer);
+
+                activeAccountLogData[accountId] = {
+                    container: logContainer,
+                    tab: tab,
+                    stopBtn: tab.querySelector('.stop-account-btn'),
+                    messageCount: 0
+                };
+
+                logContainer.innerHTML = '<div class="log-entry info" style="color: #FFA500;">⚠️ Reconnecting to active task...</div>';
+            });
+
+            let reconnectAttempts = 0;
+            const maxReconnectAttempts = 5;
+
+            function createEventSource() {
+                activeEventSource = new EventSource('/stream_messages');
+
+                activeEventSource.onmessage = function (event) {
+                    try {
+                        const data = JSON.parse(event.data);
+
+                        if (data.type === 'keepalive') {
+                            reconnectAttempts = 0;
+                            return;
+                        }
+
+                        const accountData = activeAccountLogData[data.account_id];
+
+                        let logClass = 'info';
+                        if (data.type === 'success') {
+                            logClass = 'success';
+                            if (accountData) accountData.messageCount++;
+                        } else if (data.type === 'error') {
+                            logClass = 'error';
+                        } else if (data.type === 'warning') {
+                            logClass = 'warning';
+                        } else if (data.type === 'account_complete') {
+                            // Individual account completed - update button to "Done" immediately
+                            console.log(`Account ${data.account_id} completed - updating button to Done`);
+                            if (accountData && accountData.stopBtn && !accountData.stopBtn.classList.contains('stopped')) {
+                                accountData.stopBtn.textContent = 'Done';
+                                accountData.stopBtn.classList.add('stopped');
+                                accountData.stopBtn.disabled = true;
+                            }
+                            return; // Don't add to log
+                        }
+
+                        if (data.type === 'complete') {
+                            isCompleted = true;
+                            if (activeEventSource) {
+                                activeEventSource.close();
+                                activeEventSource = null;
+                            }
+                            if (activeReconnectTimeout) {
+                                clearTimeout(activeReconnectTimeout);
+                                activeReconnectTimeout = null;
+                            }
+
+                            const completedSessionData = {
+                                logs: {},
+                                messageCounts: {},
+                                completedAt: Date.now()
+                            };
+
+                            Object.keys(activeAccountLogData).forEach(accountId => {
+                                const data = activeAccountLogData[accountId];
+                                completedSessionData.logs[accountId] = data.container.innerHTML;
+                                completedSessionData.messageCounts[accountId] = data.messageCount;
+                            });
+
+                            sessionStorage.setItem('completedSendingSession', JSON.stringify(completedSessionData));
+
+                            // UPDATE UI BUTTONS: Hide Stop, Show Clear Logs
+                            const stopBtn = document.getElementById('stop-btn');
+                            if (stopBtn) stopBtn.classList.remove('show');
+
+                            const clearLogsBtn = document.getElementById('clear-logs-btn');
+                            if (clearLogsBtn) clearLogsBtn.style.display = 'inline-block';
+
+                            isSending = false;
+
+                            Object.values(activeAccountLogData).forEach(data => {
+                                if (data.stopBtn && !data.stopBtn.classList.contains('stopped')) {
+                                    data.stopBtn.textContent = 'Done';
+                                    data.stopBtn.classList.add('stopped');
+                                    data.stopBtn.disabled = true;
+                                }
+                            });
+
+                            showMessage('message-message', data.message || 'All accounts completed!', 'success');
+                            return;
+                        }
+
+
+                        if (data.type === 'debug') {
+                            console.log('Server Debug:', data.message);
+                            // Optionally show debug in all active logs or a specific system log
+                            // For now, let's show it in all active logs with a specific style
+                            Object.values(activeAccountLogData).forEach(data => {
+                                data.container.innerHTML += `<div class="log-entry info" style="color: #aaa; font-style: italic; font-size: 0.9em;">🔧 ${data.message}</div>`;
+                                data.container.scrollTop = data.container.scrollHeight;
+                            });
+                            return;
+                        }
+
+                        if (accountData) {
+                            const badge = accountData.tab.querySelector('.badge');
+                            if (badge) {
+                                badge.textContent = accountData.messageCount;
+                            }
+
+                            accountData.container.innerHTML += `<div class="log-entry ${logClass}">${data.message}</div>`;
+                            accountData.container.scrollTop = accountData.container.scrollHeight;
+                        } else {
+                            // Try finding account by string/int conversion if direct lookup failed
+                            const altKey = String(data.account_id);
+                            const altAccountData = activeAccountLogData[altKey];
+                            if (altAccountData) {
+                                altAccountData.container.innerHTML += `<div class="log-entry ${logClass}">${data.message}</div>`;
+                                altAccountData.container.scrollTop = altAccountData.container.scrollHeight;
+                            }
+                        }
+
+                    } catch (e) {
+                        console.error('Error parsing SSE data:', e);
+                    }
+                };
+
+                activeEventSource.onerror = function (error) {
+                    console.error('EventSource error:', error);
+                    if (activeEventSource) {
+                        activeEventSource.close();
+                        activeEventSource = null;
+                    }
+
+                    if (isCompleted) {
+                        console.log('Already completed, not reconnecting');
+                        return;
+                    }
+
+                    // AUTO-RECONNECT: Keep trying until completed
+                    console.log('Connection lost. Auto-reconnecting in 3 seconds...');
+                    Object.values(activeAccountLogData).forEach(data => {
+                        data.container.innerHTML += '<div class="log-entry warning">⚠️ Connection temporarily lost. Auto-reconnecting in 3 seconds...</div>';
+                        data.container.scrollTop = data.container.scrollHeight;
+                    });
+
+                    // Auto-reconnect after 3 seconds
+                    activeReconnectTimeout = setTimeout(() => {
+                        console.log('Attempting to reconnect...');
+                        Object.values(activeAccountLogData).forEach(data => {
+                            data.container.innerHTML += '<div class="log-entry info">🔄 Reconnecting to server...</div>';
+                            data.container.scrollTop = data.container.scrollHeight;
+                        });
+                        createEventSource();
+                    }, 3000);
+                };
+
+                return activeEventSource;
+            }
+
+            createEventSource();
+        }
+
+        async function refreshRequests() {
+            const accountIds = getSelectedAccountIds();
+
+            if (accountIds.length === 0) {
+                showMessage('message-message', 'Please select at least one account', 'error');
+                return;
+            }
+
+            const progressContainer = document.getElementById('fetch-progress-container');
+            const progressBar = document.getElementById('fetch-progress-bar');
+            const progressStatus = document.getElementById('fetch-progress-status');
+            const progressDetails = document.getElementById('fetch-progress-details');
+            const requestsInfo = document.getElementById('requests-info');
+
+            requestsInfo.style.display = 'none';
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressStatus.textContent = '0%';
+            progressDetails.innerHTML = '<p style="color: #999;">Connecting...</p>';
+
+            const allResults = [];
+            const channelProgress = {};
+            let totalEstimatedUsers = 0;
+            let totalFetchedUsers = 0;
+            let totalChannels = 0;
+            let completedChannels = 0;
+            let streamAborted = false;
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 600000);
+
+                const response = await fetch('/stream_all_join_requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account_ids: accountIds }),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let lastDataTime = Date.now();
+                const connectionTimeout = 30000;
+
+                while (!streamAborted) {
+                    const readPromise = reader.read();
+                    const timeoutPromise = new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('Connection timeout')), connectionTimeout)
+                    );
+
+                    let readResult;
+                    try {
+                        readResult = await Promise.race([readPromise, timeoutPromise]);
+                    } catch (timeoutError) {
+                        if (Date.now() - lastDataTime > connectionTimeout) {
+                            throw new Error('No data received for 30 seconds');
+                        }
+                        continue;
+                    }
+
+                    const { done, value } = readResult;
+
+                    if (done) break;
+
+                    lastDataTime = Date.now();
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (!line.trim() || !line.startsWith('data: ')) continue;
+
+                        try {
+                            const data = JSON.parse(line.substring(6));
+
+                            if (data.type === 'keepalive') {
+                                lastDataTime = Date.now();
+                                continue;
+                            }
+
+                            if (data.type === 'info') {
+                                if (data.message.includes('Processing channel')) {
+                                    totalChannels++;
+                                    totalEstimatedUsers += 10000;
+                                    channelProgress[data.channel_id] = { fetched: 0, estimated: 10000, status: 'processing' };
+                                }
+                                progressDetails.innerHTML += `<p style="color: #2196F3; margin: 3px 0;">ℹ️ ${data.message}</p>`;
+                                progressDetails.scrollTop = progressDetails.scrollHeight;
+                            } else if (data.type === 'progress') {
+                                const previousFetched = channelProgress[data.channel_id]?.fetched || 0;
+                                const newFetched = data.total_fetched;
+                                const increment = newFetched - previousFetched;
+
+                                totalFetchedUsers += increment;
+                                channelProgress[data.channel_id] = {
+                                    fetched: newFetched,
+                                    estimated: channelProgress[data.channel_id]?.estimated || 10000,
+                                    status: 'fetching'
+                                };
+
+                                if (newFetched > channelProgress[data.channel_id].estimated) {
+                                    const oldEstimated = channelProgress[data.channel_id].estimated;
+                                    channelProgress[data.channel_id].estimated = newFetched + 1000;
+                                    totalEstimatedUsers += (channelProgress[data.channel_id].estimated - oldEstimated);
+                                }
+
+                                const progressPercent = totalEstimatedUsers > 0
+                                    ? Math.min(95, Math.round((totalFetchedUsers / totalEstimatedUsers) * 100))
+                                    : 0;
+
+                                progressBar.style.width = progressPercent + '%';
+                                progressBar.textContent = progressPercent + '%';
+                                progressStatus.textContent = progressPercent + '%';
+
+                                const lastDetailElement = progressDetails.querySelector(`[data-channel="${data.channel_id}"]`);
+                                if (lastDetailElement) {
+                                    lastDetailElement.innerHTML = `📊 ${data.channel_name}: ${data.total_fetched} users fetched...`;
+                                } else {
+                                    const detailP = document.createElement('p');
+                                    detailP.setAttribute('data-channel', data.channel_id);
+                                    detailP.style.cssText = 'color: #28a745; margin: 3px 0;';
+                                    detailP.innerHTML = `📊 ${data.channel_name}: ${data.total_fetched} users fetched...`;
+                                    progressDetails.appendChild(detailP);
+                                }
+                                progressDetails.scrollTop = progressDetails.scrollHeight;
+                            } else if (data.type === 'warning') {
+                                progressDetails.innerHTML += `<p style="color: #ff9800; margin: 3px 0;">⚠️ ${data.message}</p>`;
+                                progressDetails.scrollTop = progressDetails.scrollHeight;
+                            } else if (data.type === 'error') {
+                                progressDetails.innerHTML += `<p style="color: #dc3545; margin: 3px 0;">❌ ${data.message}</p>`;
+                                progressDetails.scrollTop = progressDetails.scrollHeight;
+                            } else if (data.type === 'complete') {
+                                completedChannels++;
+
+                                const actualCount = data.requests_count;
+                                const estimatedForChannel = channelProgress[data.channel_id]?.estimated || 5000;
+                                totalEstimatedUsers -= estimatedForChannel;
+                                totalEstimatedUsers += actualCount;
+                                totalFetchedUsers -= (channelProgress[data.channel_id]?.fetched || 0);
+                                totalFetchedUsers += actualCount;
+
+                                channelProgress[data.channel_id] = {
+                                    fetched: actualCount,
+                                    estimated: actualCount,
+                                    status: 'completed'
+                                };
+
+                                const progressPercent = totalChannels > 0
+                                    ? Math.round((completedChannels / totalChannels) * 100)
+                                    : 0;
+
+                                progressBar.style.width = progressPercent + '%';
+                                progressBar.textContent = progressPercent + '%';
+                                progressStatus.textContent = progressPercent + '%';
+
+                                allResults.push({
+                                    account_id: data.account_id,
+                                    account_name: data.account_name,
+                                    success: true,
+                                    channels: [data]
+                                });
+
+                                const detailElement = progressDetails.querySelector(`[data-channel="${data.channel_id}"]`);
+                                if (detailElement) {
+                                    detailElement.innerHTML = `✅ ${data.channel_name}: ${data.requests_count} total (${data.new_requests_count} new)`;
+                                    detailElement.style.color = '#4caf50';
+                                    detailElement.style.fontWeight = '600';
+                                } else {
+                                    progressDetails.innerHTML += `<p style="color: #4caf50; margin: 3px 0; font-weight: 600;">✅ ${data.channel_name}: ${data.requests_count} total (${data.new_requests_count} new)</p>`;
+                                }
+                                progressDetails.scrollTop = progressDetails.scrollHeight;
+                            } else if (data.type === 'finished' || data.type === 'all_finished') {
+                                progressBar.style.width = '100%';
+                                progressBar.textContent = '100%';
+                                progressStatus.textContent = '100%';
+                                progressDetails.innerHTML += `<p style="color: #4caf50; margin: 10px 0; font-weight: 600; font-size: 14px;">✅ All channels processed successfully!</p>`;
+
+                                setTimeout(() => {
+                                    progressContainer.style.display = 'none';
+                                    currentRequests = { success: true, results: allResults };
+                                    displayMultipleAccountRequests(allResults);
+                                    showMessage('message-message', `Successfully fetched all users from ${totalChannels} channel(s)`, 'success');
+                                }, 2000);
+                                streamAborted = true;
+                                break;
+                            }
+                        } catch (parseError) {
+                            console.error('Error parsing SSE data:', parseError, 'Line:', line);
+                        }
+                    }
+                }
+
+                try {
+                    reader.cancel();
+                } catch (e) {
+                    console.log('Reader already closed');
+                }
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                progressContainer.style.display = 'none';
+
+                if (error.name === 'AbortError') {
+                    showMessage('message-message', 'Request timeout - please try again', 'error');
+                } else if (error.message.includes('timeout')) {
+                    showMessage('message-message', 'Connection timeout - please try again', 'error');
+                } else {
+                    showMessage('message-message', `Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function displayMultipleAccountRequests(results) {
+            const container = document.getElementById('requests-info');
+            container.style.display = 'block';
+
+            let overallTotal = 0;
+            let overallNew = 0;
+
+            const htmlContent = results.map(accountResult => {
+                if (!accountResult.success) {
+                    return `
+                        <div class="channel-requests" style="border-left: 3px solid #dc3545;">
+                            <h3 style="color: #dc3545;">${accountResult.account_name}</h3>
+                            <p style="color: #721c24;">Error: ${accountResult.message}</p>
+                        </div>
+                    `;
+                }
+
+                const channels = accountResult.channels || [];
+                let accountTotal = 0;
+                let accountNew = 0;
+
+                const channelsHtml = channels.map(ch => {
+                    const count = ch.requests_count || 0;
+                    const newCount = ch.new_requests_count || 0;
+                    const alreadyMessaged = count - newCount;
+                    accountTotal += count;
+                    accountNew += newCount;
+
+                    return `
+                        <div style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #667eea;">
+                            <h5 style="margin: 0 0 5px 0;">${ch.channel_name || ch.channel_id}</h5>
+                            <div style="display: flex; gap: 15px; font-size: 13px;">
+                                <span>Total: <strong>${count}</strong></span>
+                                <span style="color: #28a745;">New: <strong>${newCount}</strong></span>
+                                <span style="color: #ffc107;">Sent: <strong>${alreadyMessaged}</strong></span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                overallTotal += accountTotal;
+                overallNew += accountNew;
+
+                return `
+                    <div class="channel-requests" style="border-left: 3px solid #28a745;">
+                        <h3 style="color: #667eea;">${accountResult.account_name}</h3>
+                        <div style="margin: 10px 0; padding: 10px; background: #e8f4f8; border-radius: 5px;">
+                            <strong>Account Total:</strong> ${accountTotal} requests 
+                            (<span style="color: #28a745;">${accountNew} new</span>, 
+                            <span style="color: #ffc107;">${accountTotal - accountNew} sent</span>)
+                        </div>
+                        ${channelsHtml}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                    <h2 style="margin: 0; font-size: 20px;">Overall Summary</h2>
+                    <div style="margin-top: 10px; font-size: 16px;">
+                        <div>Total Requests: <strong>${overallTotal}</strong></div>
+                        <div>New (Not Messaged): <strong>${overallNew}</strong></div>
+                        <div>Already Sent: <strong>${overallTotal - overallNew}</strong></div>
+                        <div>Accounts: <strong>${results.length}</strong></div>
+                    </div>
+                </div>
+            ` + htmlContent;
+        }
+
+        async function sendWelcomeMessages() {
+            const startTime = new Date().toLocaleTimeString('en-US', { hour12: false });
+            console.log(`[${startTime}] 📤 Initiating message sending process...`);
+
+            const accountCheckboxes = document.querySelectorAll('.account-checkbox:checked');
+            const accountIds = Array.from(accountCheckboxes).map(cb => parseInt(cb.dataset.accountId));
+            const message = document.getElementById('welcome-message').value;
+            const skipSent = document.getElementById('skip-sent').checked;
+            const sendingPattern = document.getElementById('sending-pattern').value.trim();
+
+            console.log(`[${startTime}] Configuration collected:`, {
+                accountsSelected: accountIds.length,
+                accountIds: accountIds,
+                messageLength: message.length,
+                skipSent: skipSent,
+                sendingPattern: sendingPattern || 'default (all at once)'
+            });
+
+            const userCountLimits = {};
+            document.querySelectorAll('.user-limit-input').forEach(input => {
+                const accountId = parseInt(input.dataset.accountId);
+                const checkbox = document.querySelector(`.account-checkbox[data-account-id="${accountId}"]`);
+                if (checkbox && checkbox.checked) {
+                    userCountLimits[accountId] = parseInt(input.value) || 100;
+                }
+            });
+
+            const proxyIds = {};
+            document.querySelectorAll('.proxy-select').forEach(select => {
+                const accountId = parseInt(select.dataset.accountId);
+                const checkbox = document.querySelector(`.account-checkbox[data-account-id="${accountId}"]`);
+                if (checkbox && checkbox.checked && select.value) {
+                    proxyIds[accountId] = parseInt(select.value);
+                }
+            });
+
+            // Validation phase
+            console.log(`[${startTime}] Running validation checks...`);
+
+            if (accountIds.length === 0) {
+                console.error(`[${startTime}] ❌ Validation failed: No accounts selected`);
+                showMessage('message-message', 'Please select at least one account', 'error');
+                return;
+            }
+
+            if (!message) {
+                console.error(`[${startTime}] ❌ Validation failed: No message text provided`);
+                showMessage('message-message', 'Please enter message text', 'error');
+                return;
+            }
+
+            // Validate sending pattern if provided
+            if (sendingPattern) {
+                console.log(`[${startTime}] Validating sending pattern: ${sendingPattern}`);
+                const patternParts = sendingPattern.split(':').map(p => parseInt(p.trim()));
+                const patternSum = patternParts.reduce((a, b) => a + b, 0);
+
+                if (patternParts.some(p => isNaN(p) || p <= 0)) {
+                    console.error(`[${startTime}] ❌ Pattern validation failed: Invalid format`);
+                    showMessage('message-message', 'Invalid pattern format. Use numbers separated by colons (e.g., 3:3:4)', 'error');
+                    return;
+                }
+
+                if (patternSum !== accountIds.length) {
+                    console.error(`[${startTime}] ❌ Pattern validation failed: Sum mismatch (pattern: ${patternSum}, accounts: ${accountIds.length})`);
+                    showMessage('message-message', `Pattern sum (${patternSum}) must equal selected accounts (${accountIds.length})`, 'error');
+                    return;
+                }
+
+                console.log(`[${startTime}] ✅ Pattern validated: ${patternParts.length} stages`);
+            }
+
+            if (!currentRequests) {
+                console.error(`[${startTime}] ❌ Validation failed: No join requests loaded`);
+                showMessage('message-message', 'Please refresh users first', 'error');
+                return;
+            }
+
+            console.log(`[${startTime}] ✅ All validation checks passed`);
+
+            // Preparation phase
+            console.log(`[${startTime}] 🔧 Preparing UI and session...`);
+
+            sessionStorage.removeItem('completedSendingSession');
+            sessionStorage.removeItem('activeSendingSession');
+            document.getElementById('clear-logs-btn').style.display = 'none';
+
+            isSending = true;
+            document.getElementById('send-btn').style.display = 'none';
+            document.getElementById('stop-btn').classList.add('show');
+
+            showLoading('message-loading');
+            console.log(`[${startTime}] Loading indicator shown`);
+
+            const accountNames = {};
+            accountIds.forEach(accountId => {
+                const account = channelAccounts.find(acc => acc.id === accountId);
+                accountNames[accountId] = account ? account.account_name : `Account ${accountId}`;
+            });
+
+            const sessionData = {
+                accountIds: accountIds,
+                accountNames: accountNames,
+                message: message,
+                skipSent: skipSent,
+                userCountLimits: userCountLimits,
+                startTime: Date.now()
+            };
+            sessionStorage.setItem('activeSendingSession', JSON.stringify(sessionData));
+            console.log(`[${startTime}] Session data saved to sessionStorage:`, {
+                accountCount: accountIds.length,
+                sessionDataSize: JSON.stringify(sessionData).length
+            });
+
+            // UI Creation phase
+            console.log(`[${startTime}] 🎨 Creating UI components for ${accountIds.length} accounts...`);
+
+            const logsContainer = document.getElementById('logs-container');
+            const logTabs = document.getElementById('log-tabs');
+            logsContainer.innerHTML = '';
+            logTabs.innerHTML = '';
+            logTabs.classList.add('show');
+
+            activeAccountLogData = {};
+
+            accountIds.forEach((accountId, index) => {
+                const account = channelAccounts.find(acc => acc.id === accountId);
+                const accountName = account ? account.account_name : `Account ${accountId}`;
+
+                const tab = document.createElement('button');
+                tab.className = 'log-tab' + (index === 0 ? ' active' : '');
+                tab.innerHTML = `
+                    <span>${accountName}</span>
+                    <span class="badge">0</span>
+                    <button class="stop-account-btn" onclick="stopSingleAccount(${accountId}, event)">
+                        Stop
+                    </button>
+                `;
+                tab.onclick = (e) => {
+                    if (!e.target.classList.contains('stop-account-btn')) {
+                        switchLogTab(accountId);
+                    }
+                };
+                logTabs.appendChild(tab);
+
+                const logContainer = document.createElement('div');
+                logContainer.id = `log-${accountId}`;
+                logContainer.className = 'log-container account-log-container' + (index === 0 ? ' active' : '');
+                logsContainer.appendChild(logContainer);
+
+                activeAccountLogData[accountId] = {
+                    container: logContainer,
+                    tab: tab,
+                    messageCount: 0,
+                    stopBtn: tab.querySelector('.stop-account-btn')
+                };
+            });
+
+            console.log(`[${startTime}] ✅ UI components created successfully for ${accountIds.length} accounts`);
+
+            // Helper to check if all accounts are done (from local UI state)
+            function checkGlobalCompletion() {
+                const allDone = Object.values(activeAccountLogData).every(data =>
+                    data.stopBtn && data.stopBtn.classList.contains('stopped') && data.stopBtn.textContent === 'Done'
+                );
+
+                if (allDone && Object.keys(activeAccountLogData).length > 0) {
+                    console.log('All accounts marked as Done. Triggering global completion state.');
+                    setTimeout(() => {
+                        hideLoading('message-loading');
+                        isSending = false;
+                        document.getElementById('send-btn').style.display = 'inline-block';
+                        document.getElementById('stop-btn').classList.remove('show');
+                        document.getElementById('clear-logs-btn').style.display = 'inline-block';
+
+                        // Clear interval if running
+                        if (activeHeartbeatInterval) {
+                            clearInterval(activeHeartbeatInterval);
+                            activeHeartbeatInterval = null;
+                        }
+                    }, 500);
+                }
+            }
+
+            // API Request phase
+            const requestTime = new Date().toLocaleTimeString('en-US', { hour12: false });
+            console.log(`[${requestTime}] 🌐 Sending initialization request to backend...`);
+
+            const requestPayload = {
+                account_ids: accountIds,
+                message,
+                skip_sent: skipSent,
+                user_count_limits: userCountLimits,
+                proxy_ids: proxyIds,
+                sending_pattern: sendingPattern
+            };
+
+            console.log(`[${requestTime}] Request payload:`, {
+                accounts: accountIds.length,
+                messageLength: message.length,
+                skipSent: skipSent,
+                pattern: sendingPattern || 'default',
+                payloadSize: JSON.stringify(requestPayload).length
+            });
+
+            try {
+                const initResponse = await fetch('/send_welcome_messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestPayload)
+                });
+
+                const responseTime = new Date().toLocaleTimeString('en-US', { hour12: false });
+                const initData = await initResponse.json();
+                console.log(`[${responseTime}] Response received from backend:`, {
+                    success: initData.success,
+                    sessionId: initData.session_id,
+                    message: initData.message
+                });
+
+                if (!initData.success) {
+                    console.error(`[${responseTime}] ❌ Backend initialization failed:`, initData.message);
+                    showMessage('message-message', initData.message, 'error');
+                    hideLoading('message-loading');
+                    isSending = false;
+                    document.getElementById('send-btn').style.display = 'inline-block';
+                    document.getElementById('stop-btn').classList.remove('show');
+                    return;
+                }
+
+                console.log(`[${responseTime}] ✅ Backend initialization successful. Session ID: ${initData.session_id}`);
+
+                // Stream connection setup
+                let reconnectAttempts = 0;
+                const maxReconnectAttempts = 5;
+                isCompleted = false;
+                let lastMessageTime = Date.now();
+
+                console.log(`[${responseTime}] 🔌 Setting up EventSource stream connection...`);
+
+                function createEventSource() {
+                    const connectTime = new Date().toLocaleTimeString('en-US', { hour12: false });
+                    console.log(`[${connectTime}] Creating new EventSource connection to /stream_messages`);
+                    activeEventSource = new EventSource('/stream_messages');
+
+                    activeHeartbeatInterval = setInterval(() => {
+                        const timeSinceLastMessage = Date.now() - lastMessageTime;
+                        if (timeSinceLastMessage > 45000 && !isCompleted) {
+                            console.warn('No message received for 45 seconds, connection may be stale');
+                            Object.values(activeAccountLogData).forEach(data => {
+                                data.container.innerHTML += '<div class="log-entry warning">⚠️ No updates for 45s. Connection may be slow. Messages continue in background.</div>';
+                            });
+                        }
+                    }, 15000);
+
+                    activeEventSource.onmessage = function (event) {
+                        try {
+                            lastMessageTime = Date.now();
+                            const data = JSON.parse(event.data);
+
+                            if (data.type === 'keepalive') {
+                                reconnectAttempts = 0;
+                                return;
+                            }
+
+                            // Handle account_info to create UI for reconnecting clients
+                            if (data.type === 'account_info') {
+                                const accountId = data.account_id;
+
+                                // Only create if doesn't exist yet
+                                if (!activeAccountLogData[accountId]) {
+                                    console.log(`Creating UI for account ${accountId} (${data.account_name}) from server state`);
+
+                                    const logTabs = document.getElementById('log-tabs');
+                                    const logsContainer = document.getElementById('logs-container');
+
+                                    // Create tab
+                                    const tab = document.createElement('button');
+                                    const isFirst = Object.keys(activeAccountLogData).length === 0;
+                                    tab.className = 'log-tab' + (isFirst ? ' active' : '');
+                                    tab.innerHTML = `
+                                        <span>${data.account_name}</span>
+                                        <span class="badge">0</span>
+                                        <button class="stop-account-btn" onclick="stopSingleAccount(${accountId}, event)">
+                                            Stop
+                                        </button>
+                                    `;
+                                    tab.onclick = (e) => {
+                                        if (!e.target.classList.contains('stop-account-btn')) {
+                                            switchLogTab(accountId);
+                                        }
+                                    };
+                                    logTabs.appendChild(tab);
+
+                                    // Create log container
+                                    const logContainer = document.createElement('div');
+                                    logContainer.id = `log-${accountId}`;
+                                    logContainer.className = 'log-container account-log-container' + (isFirst ? ' active' : '');
+                                    logsContainer.appendChild(logContainer);
+
+                                    // Store in activeAccountLogData
+                                    activeAccountLogData[accountId] = {
+                                        container: logContainer,
+                                        tab: tab,
+                                        messageCount: 0,
+                                        stopBtn: tab.querySelector('.stop-account-btn')
+                                    };
+
+                                    // Add reconnection message
+                                    logContainer.innerHTML = `<div class="log-entry info" style="color: #2196F3;">🔄 Reconnected to active session (started at ${data.started_at})</div>`;
+
+                                    console.log(`Account ${accountId} UI created successfully`);
+                                }
+                                return;
+                            }
+
+                            const accountId = data.account_id;
+                            const accountData = activeAccountLogData[accountId];
+
+                            // Handle stage messages (account_id = 0) - show in all tabs
+                            if (accountId === 0 || accountId === '0') {
+                                // This is a stage message, show in all account logs
+                                Object.values(activeAccountLogData).forEach(logData => {
+                                    const logEntry = document.createElement('div');
+                                    logEntry.className = 'log-entry ' + (data.type || 'info');
+                                    logEntry.textContent = data.message || '';
+                                    logData.container.appendChild(logEntry);
+                                    logData.container.scrollTop = logData.container.scrollHeight;
+                                });
+                                return;
+                            }
+
+                            if (!accountData && data.type !== 'complete') {
+                                return;
+                            }
+
+                            let logClass = 'info';
+
+                            if (data.type === 'success') {
+                                logClass = 'success';
+                                if (accountData) {
+                                    accountData.messageCount++;
+                                }
+                            } else if (data.type === 'error') {
+                                logClass = 'error';
+                            } else if (data.type === 'warning') {
+                                logClass = 'warning';
+
+                                if (data.message && data.message.includes('Stop signal received')) {
+                                    if (accountData && accountData.stopBtn) {
+                                        accountData.stopBtn.textContent = 'Stopped';
+                                        accountData.stopBtn.classList.add('stopped');
+                                        accountData.stopBtn.disabled = true;
+                                    }
+                                }
+                            } else if (data.type === 'account_complete') {
+                                // Individual account completed - update button to "Done" immediately
+                                console.log(`Account ${accountId} completed - updating button to Done`);
+                                if (accountData && accountData.stopBtn && !accountData.stopBtn.classList.contains('stopped')) {
+                                    accountData.stopBtn.textContent = 'Done';
+                                    accountData.stopBtn.classList.add('stopped');
+                                    accountData.stopBtn.disabled = true;
+                                }
+                                return; // Don't add to log, the info message already added
+                            } else if (data.type === 'complete') {
+                                console.log('Received complete signal, closing connection');
+                                isCompleted = true;
+                                if (activeHeartbeatInterval) {
+                                    clearInterval(activeHeartbeatInterval);
+                                    activeHeartbeatInterval = null;
+                                }
+                                if (activeEventSource) {
+                                    activeEventSource.close();
+                                    activeEventSource = null;
+                                }
+                                if (activeReconnectTimeout) {
+                                    clearTimeout(activeReconnectTimeout);
+                                    activeReconnectTimeout = null;
+                                }
+                                hideLoading('message-loading');
+                                isSending = false;
+                                document.getElementById('send-btn').style.display = 'inline-block';
+                                document.getElementById('stop-btn').classList.remove('show');
+                                document.getElementById('clear-logs-btn').style.display = 'inline-block';
+
+                                sessionStorage.removeItem('activeSendingSession');
+
+                                const completedSessionData = {
+                                    accountIds: accountIds,
+                                    accountNames: accountNames,
+                                    logs: {},
+                                    messageCounts: {},
+                                    completedAt: Date.now()
+                                };
+
+                                Object.keys(activeAccountLogData).forEach(accountId => {
+                                    const data = activeAccountLogData[accountId];
+                                    completedSessionData.logs[accountId] = data.container.innerHTML;
+                                    completedSessionData.messageCounts[accountId] = data.messageCount;
+                                });
+
+                                sessionStorage.setItem('completedSendingSession', JSON.stringify(completedSessionData));
+
+                                Object.values(activeAccountLogData).forEach(data => {
+                                    if (data.stopBtn && !data.stopBtn.classList.contains('stopped')) {
+                                        data.stopBtn.textContent = 'Done';
+                                        data.stopBtn.classList.add('stopped');
+                                        data.stopBtn.disabled = true;
+                                    }
+                                });
+
+                                showMessage('message-message', data.message || 'All accounts completed!', 'success');
+                                return;
+                            } else {
+                                // For all other message types, check global completion status
+                                // This ensures we catch completion even if we missed the specific 'complete' event
+                                // or if individual 'account_complete' events finished everything
+                                if (data.type === 'account_complete' || data.type === 'account_info') {
+                                    checkGlobalCompletion();
+                                }
+                            }
+
+                            if (accountData) {
+                                const badge = accountData.tab.querySelector('.badge');
+                                if (badge) {
+                                    badge.textContent = accountData.messageCount;
+                                }
+
+                                accountData.container.innerHTML += `<div class="log-entry ${logClass}">${data.message}</div>`;
+                                accountData.container.scrollTop = accountData.container.scrollHeight;
+                            }
+
+                        } catch (e) {
+                            console.error('Error parsing SSE data:', e);
+                        }
+                    };
+
+                    activeEventSource.onerror = function (error) {
+                        console.error('EventSource error:', error);
+                        if (activeHeartbeatInterval) {
+                            clearInterval(activeHeartbeatInterval);
+                            activeHeartbeatInterval = null;
+                        }
+                        if (activeEventSource) {
+                            activeEventSource.close();
+                            activeEventSource = null;
+                        }
+
+                        if (isCompleted) {
+                            console.log('Already completed, not reconnecting');
+                            return;
+                        }
+
+                        // AUTO-RECONNECT: Keep trying until completed
+                        console.log('Connection lost. Auto-reconnecting in 3 seconds...');
+                        Object.values(activeAccountLogData).forEach(data => {
+                            data.container.innerHTML += '<div class="log-entry warning">⚠️ Connection temporarily lost. Auto-reconnecting in 3 seconds...</div>';
+                            data.container.scrollTop = data.container.scrollHeight;
+                        });
+
+                        // Auto-reconnect after 3 seconds
+                        activeReconnectTimeout = setTimeout(() => {
+                            console.log('Attempting to reconnect...');
+                            Object.values(activeAccountLogData).forEach(data => {
+                                data.container.innerHTML += '<div class="log-entry info">🔄 Reconnecting to server...</div>';
+                                data.container.scrollTop = data.container.scrollHeight;
+                            });
+                            createEventSource();
+                        }, 3000);
+                    };
+
+                    return activeEventSource;
+                }
+
+                createEventSource();
+
+            } catch (error) {
+                if (activeAccountLogData) {
+                    Object.values(activeAccountLogData).forEach(data => {
+                        data.container.innerHTML += `<div class="log-entry error">An error occurred</div>`;
+                    });
+                }
+                showMessage('message-message', 'An error occurred', 'error');
+                hideLoading('message-loading');
+                isSending = false;
+                document.getElementById('send-btn').style.display = 'inline-block';
+                document.getElementById('stop-btn').classList.remove('show');
+            }
+        }
+
+        async function stopMessages() {
+            if (!confirm('Are you sure you want to stop sending messages for ALL accounts?')) {
+                return;
+            }
+
+            const stopBtn = document.getElementById('stop-btn');
+            const originalText = stopBtn.textContent;
+            stopBtn.textContent = 'Stopping...';
+            stopBtn.disabled = true;
+
+            try {
+                // Determine session ID from active log data if possible, or just call stop_all
+                // The backend handles stopping all threads
+                const response = await fetch('/stop_messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('message-message', 'Stop signal sent to all workers', 'success');
+                    // UI update will happen via SSE 'warning' or 'complete' message
+
+                    // Force update UI locally for immediate feedback
+                    Object.values(activeAccountLogData).forEach(data => {
+                        if (data.stopBtn) {
+                            data.stopBtn.textContent = 'Stopping...';
+                            data.stopBtn.disabled = true;
+                        }
+                    });
+                } else {
+                    showMessage('message-message', `Error stopping messages: ${data.message}`, 'error');
+                    stopBtn.textContent = originalText;
+                    stopBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error stopping messages:', error);
+                showMessage('message-message', 'Failed to send stop request', 'error');
+                stopBtn.textContent = originalText;
+                stopBtn.disabled = false;
+            }
+        }
+
+        async function stopSingleAccount(accountId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            const account = currentAccounts.find(acc => acc.id === accountId);
+            const accountName = account ? account.account_name : `Account ${accountId}`;
+
+            if (!confirm(`Are you sure you want to stop account ${accountName}?`)) {
+                return;
+            }
+
+            const accountData = activeAccountLogData[accountId];
+            if (accountData && accountData.stopBtn) {
+                accountData.stopBtn.textContent = 'Stopping...';
+                accountData.stopBtn.disabled = true;
+            }
+
+            try {
+                const response = await fetch('/stop_account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account_id: accountId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Success - UI will update via SSE
+                    showMessage('message-message', `Stop signal sent for account ${accountName}`, 'success');
+
+                    // Wait a bit and check global status
+                    setTimeout(() => {
+                        if (typeof checkGlobalCompletion === 'function') {
+                            checkGlobalCompletion();
+                        }
+                    }, 2000);
+
+                } else {
+                    showMessage('message-message', `Error stopping account: ${data.message}`, 'error');
+                    if (accountData && accountData.stopBtn) {
+                        accountData.stopBtn.textContent = 'Stop'; // Revert
+                        accountData.stopBtn.disabled = false;
+                    }
+                }
+            } catch (error) {
+                console.error('Error stopping account:', error);
+                showMessage('message-message', 'Failed to send stop request', 'error');
+                if (accountData && accountData.stopBtn) {
+                    accountData.stopBtn.textContent = 'Stop'; // Revert
+                    accountData.stopBtn.disabled = false;
+                }
+            }
+        }
+
+        async function clearSavedLogs() {
+            try {
+                // Call backend to cleanup completed tasks from database
+                const response = await fetch('/cleanup_session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    console.log(`Cleaned up ${data.cleaned} completed tasks from database`);
+
+                    // Clear UI logs
+                    const logsContainer = document.getElementById('logs-container');
+                    const logTabs = document.getElementById('log-tabs');
+
+                    if (logsContainer) logsContainer.innerHTML = '';
+                    if (logTabs) logTabs.innerHTML = '';
+
+                    // Reset state
+                    activeAccountLogData = {};
+                    sessionStorage.removeItem('completedSendingSession');
+                    sessionStorage.removeItem('activeSendingSession');
+
+                    // Hide clear logs button
+                    document.getElementById('clear-logs-btn').style.display = 'none';
+
+                    showMessage('message-message', 'Logs cleared successfully', 'success');
+                } else {
+                    console.error('Failed to cleanup session:', data.message);
+                    showMessage('message-message', 'Failed to clear logs: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error clearing logs:', error);
+                showMessage('message-message', 'Error clearing logs', 'error');
+            }
+        }
+
+        function switchLogTab(accountId) {
+            document.querySelectorAll('.log-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            const tabs = document.querySelectorAll('.log-tab');
+            tabs.forEach(tab => {
+                const tabAccountId = parseInt(tab.querySelector('.stop-account-btn')?.getAttribute('onclick')?.match(/\d+/)?.[0]);
+                if (tabAccountId === accountId) {
+                    tab.classList.add('active');
+                }
+            });
+
+            document.querySelectorAll('.account-log-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById(`log-${accountId}`).classList.add('active');
+        }
+
+        async function checkAccountStatus(accountId) {
+            const statusBadge = document.getElementById(`status-${accountId}`);
+            statusBadge.style.display = 'inline-block';
+            statusBadge.className = 'status-badge checking';
+            statusBadge.textContent = 'Checking...';
+
+            try {
+                const response = await fetch(`/check_account_status/${accountId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.status === 'active') {
+                        statusBadge.className = 'status-badge active';
+                        statusBadge.textContent = 'Active';
+                        showMessage('account-message', 'Session is active and working!', 'success');
+                    } else if (data.status === 'inactive') {
+                        statusBadge.className = 'status-badge inactive';
+                        statusBadge.textContent = 'Inactive';
+                        showMessage('account-message', `Session inactive: ${data.message}`, 'error');
+                    } else {
+                        statusBadge.className = 'status-badge inactive';
+                        statusBadge.textContent = 'Error';
+                        showMessage('account-message', `Error: ${data.message}`, 'error');
+                    }
+                }
+            } catch (error) {
+                statusBadge.className = 'status-badge inactive';
+                statusBadge.textContent = 'Error';
+                showMessage('account-message', 'Failed to check status', 'error');
+            }
+        }
+
+
+        loadAccounts();
+        loadChannelNames();
+        // restoreActiveTasks() is now handled by window.addEventListener('load') with proper sessionStorage checks
+
+        checkDatabaseHealth().then(health => {
+            if (health && health.accounts === 0) {
+                console.warn('⚠️ Database is connected but no accounts found');
+                console.log('💡 To see all accounts, run: debugAccounts()');
+            }
+        });
+
+        let proxies = [];
+
+        async function loadProxies() {
+            try {
+                const response = await fetch('/api/proxy/list');
+                const data = await response.json();
+
+                if (data.success) {
+                    proxies = data.proxies;
+                    renderProxyList();
+                    updateProxyDropdowns();
+                } else {
+                    showMessage('proxy-message', data.message || 'Failed to load proxies', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading proxies:', error);
+            }
+        }
+
+        function updateProxyDropdowns() {
+            const accountProxySelect = document.getElementById('account-proxy-select');
+            if (accountProxySelect) {
+                accountProxySelect.innerHTML = '<option value="">No proxy</option>';
+                proxies.filter(p => p.is_active).forEach(proxy => {
+                    const statusIcon = proxy.status === 'online' ? '✓' : proxy.status === 'offline' ? '✗' : '?';
+                    accountProxySelect.innerHTML += `<option value="${proxy.id}">${statusIcon} ${proxy.host}:${proxy.port} (${proxy.protocol.toUpperCase()})</option>`;
+                });
+            }
+        }
+
+        function renderProxyList() {
+            const container = document.getElementById('proxy-list');
+
+            if (!proxies || proxies.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No proxies added yet</p>';
+                return;
+            }
+
+            let html = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse;">';
+            html += '<thead><tr style="background: #f5f7fa; border-bottom: 2px solid #e0e0e0;">';
+            html += '<th style="padding: 12px; text-align: left;">Host:Port</th>';
+            html += '<th style="padding: 12px; text-align: left;">Protocol</th>';
+            html += '<th style="padding: 12px; text-align: left;">Location (Real IP)</th>';
+            html += '<th style="padding: 12px; text-align: center;">Auth</th>';
+            html += '<th style="padding: 12px; text-align: center;">Status</th>';
+            html += '<th style="padding: 12px; text-align: center;">Response</th>';
+            html += '<th style="padding: 12px; text-align: center;">Actions</th>';
+            html += '</tr></thead><tbody>';
+
+            proxies.forEach(proxy => {
+                const statusColor = proxy.status === 'online' ? '#4caf50' :
+                    proxy.status === 'offline' ? '#f44336' :
+                        proxy.status === 'checking' ? '#ff9800' : '#999';
+
+                const statusIcon = proxy.status === 'online' ? '✓' :
+                    proxy.status === 'offline' ? '✗' :
+                        proxy.status === 'checking' ? '⟳' : '?';
+
+                const activeStyle = proxy.is_active ? '' : 'opacity: 0.5; background: #fafafa;';
+
+                let locationDisplay;
+                if (proxy.location) {
+                    const tooltipText = `City: ${proxy.city || 'Unknown'}\\nCountry: ${proxy.country || 'Unknown'}\\nDetected through proxy connection`;
+                    locationDisplay = `<span style="cursor: help; border-bottom: 1px dotted #666;" title="${tooltipText}">🌍 ${proxy.country_code || proxy.location}</span>`;
+                } else {
+                    locationDisplay = '<span style="color: #ff9800;">❓ Unknown (Check proxy)</span>';
+                }
+
+                html += `<tr style="border-bottom: 1px solid #e0e0e0; ${activeStyle}">`;
+                html += `<td style="padding: 12px;"><b>${proxy.host}:${proxy.port}</b></td>`;
+                html += `<td style="padding: 12px;">${proxy.protocol.toUpperCase()}</td>`;
+                html += `<td style="padding: 12px;">${locationDisplay}</td>`;
+                html += `<td style="padding: 12px; text-align: center;">${proxy.has_auth ? '🔒 Yes' : '- No'}</td>`;
+                html += `<td style="padding: 12px; text-align: center;"><span style="color: ${statusColor}; font-weight: bold;">${statusIcon} ${proxy.status}</span></td>`;
+                html += `<td style="padding: 12px; text-align: center;">${proxy.response_time ? (proxy.response_time.toFixed(2) + 's') : '-'}</td>`;
+                html += '<td style="padding: 12px; text-align: center; white-space: nowrap;">';
+                html += `<button onclick="checkProxy(${proxy.id})" class="btn btn-secondary" style="padding: 5px 10px; margin: 2px; font-size: 12px;" title="Check connection & refresh location">Check</button>`;
+                html += `<button onclick="toggleProxy(${proxy.id})" class="btn ${proxy.is_active ? 'btn-warning' : 'btn-success'}" style="padding: 5px 10px; margin: 2px; font-size: 12px; background: ${proxy.is_active ? '#ff9800' : '#4caf50'};">${proxy.is_active ? 'Disable' : 'Enable'}</button>`;
+                html += `<button onclick="deleteProxy(${proxy.id})" class="btn btn-danger" style="padding: 5px 10px; margin: 2px; font-size: 12px;">Delete</button>`;
+                html += '</td></tr>';
+            });
+
+            html += '</tbody></table></div>';
+
+            html += '<div style="margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 4px solid #2196F3; border-radius: 5px; font-size: 13px;">';
+            html += '<b>💡 Tip:</b> Location shows where Telegram sees your connection from. Click "Check" to verify and refresh location data.';
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        async function handleAddProxy(event) {
+            event.preventDefault();
+
+            const host = document.getElementById('proxy-host').value.trim();
+            const port = document.getElementById('proxy-port').value;
+            const protocol = document.getElementById('proxy-protocol').value;
+            const username = document.getElementById('proxy-username').value.trim();
+            const password = document.getElementById('proxy-password').value.trim();
+
+            if (!host || !port) {
+                showMessage('proxy-message', 'Host and port are required', 'error');
+                return;
+            }
+
+            showLoading('proxy-loading');
+
+            try {
+                const response = await fetch('/api/proxy/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        host: host,
+                        port: parseInt(port),
+                        protocols: [protocol],
+                        username: username || null,
+                        password: password || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('proxy-message', data.message, 'success');
+                    document.getElementById('add-proxy-form').reset();
+                    await loadProxies();
+                } else {
+                    showMessage('proxy-message', data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('proxy-message', 'Error: ' + error.message, 'error');
+            } finally {
+                hideLoading('proxy-loading');
+            }
+        }
+
+        async function checkProxy(proxyId) {
+            showMessage('proxy-message', 'Checking proxy connection and refreshing location...', 'info');
+
+            try {
+                const response = await fetch(`/api/proxy/check/${proxyId}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const locationInfo = data.proxy.location ? ` - Location: ${data.proxy.location}` : '';
+                    showMessage('proxy-message', data.message + locationInfo, data.proxy.status === 'online' ? 'success' : 'error');
+                    await loadProxies();
+                } else {
+                    showMessage('proxy-message', data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('proxy-message', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteProxy(proxyId) {
+            if (!confirm('Are you sure you want to delete this proxy?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/proxy/delete/${proxyId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('proxy-message', data.message, 'success');
+                    await loadProxies();
+                } else {
+                    showMessage('proxy-message', data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('proxy-message', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function toggleProxy(proxyId) {
+            try {
+                const response = await fetch(`/api/proxy/toggle/${proxyId}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('proxy-message', data.message, 'success');
+                    await loadProxies();
+                } else {
+                    showMessage('proxy-message', data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('proxy-message', 'Error: ' + error.message, 'error');
+            }
+        }
+
+    </script>
+</body>
+
+</html>
